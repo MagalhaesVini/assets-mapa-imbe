@@ -24,6 +24,18 @@
 
 ---
 
+## 🚀 Última Versão Disponível (v1.0.0)
+
+Mosaico ortofotovoltaico georreferenciado pronto para uso em WebGIS via descompressão sob demanda.
+
+* **`imbecadgeo.tiff` (787.61 MB)**: Camada cadastral de Imbé/RS.
+
+### Integração direta no React:
+```javascript
+const tiffUrl = "https://github.com/MagalhaesVini/assets-mapa-imbe/releases/download/v1.0.0/imbecadgeo.tiff";
+```
+
+---
 ## ❤️ Créditos
 
 <div align="center">
