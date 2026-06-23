@@ -3,15 +3,24 @@
 <div align="center">
   <img src="/logo512.png" alt="Mapa Imbé Logo" width="120"/>
   <h1>🗺️ Assets Mapa Virtual de Imbé/RS 🏖️</h1>
-  <p><strong>Mapa interativo com múltiplas camadas, busca inteligente e controles visuais personalizados.</strong></p>
+  <p><strong>Armazenamento de dados geoespaciais brutos, imagens aéreas e recursos visuais.</strong></p>
 </div>
 
 <div align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
-  <img src="https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet"/>
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js"/>
-  <img src="https://img.shields.io/badge/PM2-2F8BCE?style=for-the-badge&logo=pm2&logoColor=white" alt="PM2"/>
+  <img src="https://img.shields.io/badge/GeoTIFF-273A4A?style=for-the-badge" alt="GeoTIFF"/>
+  <img src="https://img.shields.io/badge/Shapefile-E68A00?style=for-the-badge" alt="Shapefile"/>
+  <img src="https://img.shields.io/badge/GeoJSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="GeoJSON"/>
 </div>
+
+---
+
+## 🗂️ Organização dos Arquivos
+
+| Tipo | Extensão | Descrição |
+|-----|------|------------|
+| 🗺️ **Imagens Raster** | `.tiff` / `.geotiff` | Ortofotos brutas de alta resolução da aerofotometria |
+| 📐 **Dados Vetoriais** | `.shp` / `.shx` / `.dbf` | Shapefiles originais com a malha cadastral do município |
+| 💾 **Camadas Otimizadas** | `.json` / `.geojson` | Bases convertidas para WGS84 prontas para o app |
 
 ---
 
