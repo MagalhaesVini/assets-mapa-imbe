@@ -1,0 +1,1237 @@
+const fs = require('fs');
+const path = require('path');
+
+function scanDirectory(dir, basePath = '') {
+  const items = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    if (entry.name === 'node_modules') continue;
+
+    const fullPath = path.join(dir, entry.name);
+    const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+
+    if (entry.isDirectory()) {
+      const children = scanDirectory(fullPath, relativePath);
+      items.push({
+        type: 'folder',
+        name: entry.name,
+        path: relativePath,
+        children: children
+      });
+    } else {
+      const stats = fs.statSync(fullPath);
+      const ext = path.extname(entry.name).toLowerCase();
+      
+      items.push({
+        type: 'file',
+        name: entry.name,
+        path: relativePath,
+        size: stats.size,
+        ext: ext
+      });
+    }
+  }
+
+  return items;
+}
+
+function generateAssetsJSON(structure) {
+  const assets = [];
+
+  function flatten(items) {
+    for (const item of items) {
+      if (item.name === 'index.html' || item.name === 'generate-index.js' || 
+          item.name === 'netlify.toml' || item.name === 'README.md' || 
+          item.name === 'logo512.png' || item.name === 'package.json' ||
+          item.name === 'package-lock.json' || item.name === 'background.gif' ||
+          item.name === 'background.jpg' || item.name === 'background.png') continue;
+
+      if (item.type === 'file') {
+        assets.push({
+          name: item.name,
+          path: item.path,
+          size: item.size,
+          ext: item.ext,
+          type: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+                item.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
+          previewable: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? true : false
+        });
+      }
+      if (item.children) flatten(item.children);
+    }
+  }
+
+  flatten(structure);
+  return assets;
+}
+
+function generateFoldersJSON(structure) {
+  const folders = [];
+
+  function flatten(items) {
+    for (const item of items) {
+      if (item.name.startsWith('.')) continue;
+      if (item.type === 'folder') {
+        folders.push({
+          name: item.name,
+          path: item.path,
+          children: item.children ? true : false
+        });
+        if (item.children) flatten(item.children);
+      }
+    }
+  }
+
+  flatten(structure);
+  return folders;
+}
+
+function getFileIconSVG(type) {
+  if (type === 'image') {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
+  } else if (type === 'vector') {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
+  } else {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
+  }
+}
+
+function getFolderContents(folderPath, structure) {
+  // Encontra a pasta na estrutura
+  function findFolder(items, targetPath) {
+    for (const item of items) {
+      if (item.path === targetPath) return item;
+      if (item.children) {
+        const found = findFolder(item.children, targetPath);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  const folder = findFolder(structure, folderPath);
+  if (!folder || !folder.children) return { files: [], folders: [] };
+
+  const files = [];
+  const subfolders = [];
+
+  for (const child of folder.children) {
+    if (child.type === 'file' && 
+        child.name !== 'index.html' && child.name !== 'generate-index.js' && 
+        child.name !== 'netlify.toml' && child.name !== 'README.md' && 
+        child.name !== 'logo512.png') {
+      files.push({
+        name: child.name,
+        path: child.path,
+        size: child.size,
+        ext: child.ext,
+        type: child.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+              child.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
+        previewable: child.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? true : false
+      });
+    } else if (child.type === 'folder') {
+      subfolders.push({
+        name: child.name,
+        path: child.path
+      });
+    }
+  }
+
+  return { files, folders: subfolders };
+}
+
+// Verifica background
+let backgroundStyle = "background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80');";
+if (fs.existsSync('./background.gif')) {
+  backgroundStyle = "background-image: url('/background.gif');";
+} else if (fs.existsSync('./background.jpg')) {
+  backgroundStyle = "background-image: url('/background.jpg');";
+} else if (fs.existsSync('./background.png')) {
+  backgroundStyle = "background-image: url('/background.png');";
+}
+
+const structure = scanDirectory('.');
+const assets = generateAssetsJSON(structure);
+const folders = generateFoldersJSON(structure);
+
+// Pega pastas da raiz para o desktop
+const rootFolders = structure.filter(item => item.type === 'folder');
+const rootFiles = structure.filter(item => item.type === 'file' && 
+  item.name !== 'index.html' && item.name !== 'generate-index.js' && 
+  item.name !== 'netlify.toml' && item.name !== 'README.md' && 
+  item.name !== 'logo512.png' && item.name !== 'background.gif' &&
+  item.name !== 'background.jpg' && item.name !== 'background.png');
+
+let desktopIconsHTML = '';
+
+rootFolders.forEach(folder => {
+  desktopIconsHTML += `
+    <div class="desktop-icon" data-folder="${folder.path}" ondblclick="openFolder('${folder.path}')">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
+      </svg>
+      <span>${folder.name}</span>
+    </div>`;
+});
+
+rootFiles.forEach(file => {
+  const ext = path.extname(file.name).toLowerCase();
+  const type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+               ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other';
+  desktopIconsHTML += `
+    <div class="desktop-icon" data-file="${file.path}" ondblclick="openFile('${file.path}')">
+      ${getFileIconSVG(type)}
+      <span>${file.name}</span>
+    </div>`;
+});
+
+// Gera a estrutura de pastas como JSON para o frontend
+const folderStructureJSON = JSON.stringify(structure).replace(/</g, '\\u003c');
+
+let startMenuItemsHTML = '';
+rootFolders.forEach(folder => {
+  startMenuItemsHTML += `
+      <div class="start-menu-item" onclick="openFolder('${folder.path}'); toggleStart();">
+        <svg viewBox="0 0 24 24" fill="#f5c842"><path d="M3 5h6l2 2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
+        ${folder.name}
+      </div>`;
+});
+
+const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assets Mapa Imbé</title>
+  <link rel="icon" href="/logo512.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      cursor: default;
+      user-select: none;
+    }
+
+    #desktop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 40px);
+      ${backgroundStyle}
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 20px;
+    }
+
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80px;
+      padding: 10px 5px;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.1s;
+    }
+
+    .desktop-icon:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .desktop-icon.selected {
+      background: rgba(255,255,255,0.35);
+      border-color: #3168d5;
+    }
+
+    .desktop-icon svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 6px;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+    }
+
+    .desktop-icon span {
+      color: white;
+      font-size: 11px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+      word-break: break-word;
+      line-height: 1.2;
+    }
+
+    #desktop-footer {
+      position: absolute;
+      bottom: 50px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    #desktop-footer .credit {
+      color: rgba(255,255,255,0.9);
+      font-size: 11px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #desktop-footer .credit:hover {
+      color: #67e8f9;
+    }
+
+    #desktop-footer .credit svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    #taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(to bottom, #3c6fd5, #2156c4, #1a4aa8);
+      border-top: 2px solid #4f8be3;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      z-index: 9999;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+    }
+
+    #startBtn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      height: 32px;
+      background: linear-gradient(to bottom, #6dad3b, #4c8c2a);
+      border: none;
+      border-radius: 0 8px 8px 0;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px #3a7a1f;
+      margin-right: 4px;
+    }
+
+    #startBtn:hover {
+      background: linear-gradient(to bottom, #7dbd4b, #5c9c3a);
+    }
+
+    #startBtn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    #taskbar-windows {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .taskbar-window {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      height: 28px;
+      background: linear-gradient(to bottom, #4b7fd9, #3a6cc9);
+      border: 1px solid #1a4aa8;
+      border-radius: 3px;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      min-width: 120px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .taskbar-window.active {
+      background: linear-gradient(to bottom, #e8f0fc, #c8daf8);
+      color: #1a3a6a;
+      border-color: #1a4aa8;
+    }
+
+    #taskbar-clock {
+      margin-left: auto;
+      padding: 0 12px;
+      color: white;
+      font-size: 12px;
+      text-align: right;
+      background: rgba(0,0,0,0.1);
+      height: 32px;
+      display: flex;
+      align-items: center;
+      border-radius: 3px;
+    }
+
+    #startMenu {
+      position: fixed;
+      bottom: 40px;
+      left: 0;
+      width: 340px;
+      background: linear-gradient(to bottom, #f0f4fc, #dce8f8);
+      border: 2px solid #1a4aa8;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 4px -4px 20px rgba(0,0,0,0.4);
+      z-index: 10000;
+      display: none;
+    }
+
+    #startMenu.show {
+      display: block;
+    }
+
+    .start-menu-header {
+      background: linear-gradient(to bottom, #2156c4, #1a4aa8);
+      padding: 12px;
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .start-menu-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .start-menu-header span {
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .start-menu-items {
+      padding: 4px 0;
+    }
+
+    .start-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #1a3a6a;
+    }
+
+    .start-menu-item:hover {
+      background: #3168d5;
+      color: white;
+    }
+
+    .start-menu-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .window {
+      position: fixed;
+      background: #f0f4fc;
+      border: 2px solid #1a4aa8;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      min-width: 400px;
+      min-height: 300px;
+      overflow: hidden;
+      resize: both;
+    }
+
+    .window.active {
+      display: flex;
+    }
+
+    .window-header {
+      display: flex;
+      align-items: center;
+      padding: 4px 6px;
+      background: linear-gradient(to bottom, #3c6fd5, #2156c4);
+      border-radius: 6px 6px 0 0;
+      cursor: move;
+      gap: 6px;
+    }
+
+    .win-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .win-title {
+      flex: 1;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .win-buttons {
+      display: flex;
+      gap: 3px;
+    }
+
+    .win-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .win-minimize { background: #3c8c3c; }
+    .win-maximize { background: #3c6fd5; }
+    .win-close { background: #d53c3c; }
+    .win-btn:hover { filter: brightness(1.2); }
+
+    .window-content {
+      flex: 1;
+      overflow: auto;
+      background: white;
+    }
+
+    .file-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 10px;
+      align-content: flex-start;
+    }
+
+    .file-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 70px;
+      padding: 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .file-icon:hover {
+      background: #e8f0fc;
+    }
+
+    .file-icon.selected {
+      background: #3168d5;
+      color: white;
+    }
+
+    .file-icon svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 4px;
+    }
+
+    .file-icon span {
+      font-size: 10px;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+
+    .folder-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 70px;
+      padding: 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .folder-icon:hover {
+      background: #e8f0fc;
+    }
+
+    .folder-icon svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 4px;
+    }
+
+    .folder-icon span {
+      font-size: 10px;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+
+    .image-viewer .window-content {
+      background: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: auto;
+    }
+
+    .image-viewer img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .image-viewer canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .image-viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .image-viewer .loading {
+      color: white;
+      font-size: 14px;
+    }
+
+    .image-viewer .viewer-info {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .image-viewer .viewer-actions {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .viewer-actions button, .viewer-actions a {
+      padding: 6px 12px;
+      background: rgba(49, 104, 213, 0.8);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      text-decoration: none;
+    }
+
+    .viewer-actions button:hover, .viewer-actions a:hover {
+      background: rgba(49, 104, 213, 1);
+    }
+
+    #contextMenu {
+      position: fixed;
+      background: #f0f4fc;
+      border: 1px solid #1a4aa8;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+      z-index: 20000;
+      display: none;
+      min-width: 180px;
+      padding: 2px 0;
+    }
+
+    #contextMenu .menu-item {
+      padding: 6px 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #contextMenu .menu-item:hover {
+      background: #3168d5;
+      color: white;
+    }
+
+    #contextMenu .separator {
+      height: 1px;
+      background: #ccc;
+      margin: 2px 6px;
+    }
+
+    .window-footer {
+      padding: 6px 10px;
+      background: #f0f4fc;
+      border-top: 1px solid #ddd;
+      font-size: 11px;
+      color: #666;
+    }
+
+    .window-breadcrumb {
+      padding: 6px 10px;
+      background: #f0f4fc;
+      border-bottom: 1px solid #ddd;
+      font-size: 11px;
+      color: #3168d5;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .window-breadcrumb span {
+      cursor: pointer;
+    }
+
+    .window-breadcrumb span:hover {
+      text-decoration: underline;
+    }
+
+    .window-breadcrumb .separator {
+      color: #999;
+    }
+
+    .info-content {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .info-content .big-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .info-content h3 {
+      margin-bottom: 12px;
+    }
+
+    .info-content p {
+      color: #666;
+      margin: 4px 0;
+    }
+
+    .info-content button, .info-content a {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: #3168d5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .info-content button:hover, .info-content a:hover {
+      background: #2156c4;
+    }
+
+    .info-content .download-btn {
+      background: #3c8c3c;
+      margin-left: 8px;
+    }
+
+    .info-content .download-btn:hover {
+      background: #2d6e2d;
+    }
+  </style>
+</head>
+<body>
+  <div id="desktop">
+    ${desktopIconsHTML}
+    
+    <div id="desktop-footer">
+      <span class="credit" style="font-weight:bold;margin-bottom:4px;">Assets Mapa Imbé</span>
+      <a class="credit" href="https://github.com/MagalhaesVini" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        MagalhaesVini
+      </a>
+      <a class="credit" href="mailto:vinizipi@gmail.com">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 7.713-9.518-7.713h19.036zm-19.518 14v-11.817l10 8.104 10-8.104v11.817h-20z"/></svg>
+        vinizipi@gmail.com
+      </a>
+      <a class="credit" href="https://www.linkedin.com/in/magalhaesvinicius/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <button id="startBtn" onclick="toggleStart()">
+      <img src="/logo512.png" alt="Logo">
+      Iniciar
+    </button>
+    <div id="taskbar-windows"></div>
+    <div id="taskbar-clock"></div>
+  </div>
+
+  <div id="startMenu">
+    <div class="start-menu-header">
+      <img src="/logo512.png" alt="Logo">
+      <span>Assets Mapa Imb\u00e9</span>
+    </div>
+    <div class="start-menu-items">
+      ${startMenuItemsHTML}
+      <div class="separator"></div>
+      <div class="start-menu-item" onclick="toggleStart()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Sobre
+      </div>
+    </div>
+  </div>
+
+  <div id="contextMenu">
+    <div class="menu-item" onclick="refreshDesktop()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Atualizar
+    </div>
+  </div>
+
+  <div id="windowContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
+  <script>
+    var FOLDER_STRUCTURE = ${folderStructureJSON};
+    var windowZIndex = 100;
+    var activeWindow = null;
+    var dragData = null;
+
+    function getFileIconSVG(type) {
+      if (type === 'image') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
+      } else if (type === 'vector') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
+      } else {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
+      }
+    }
+
+    function formatSize(bytes) {
+      if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+      if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+      if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return bytes + ' B';
+    }
+
+    function updateClock() {
+      var now = new Date();
+      var time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('taskbar-clock').textContent = time;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function toggleStart() {
+      document.getElementById('startMenu').classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn')) {
+        document.getElementById('startMenu').classList.remove('show');
+      }
+    });
+
+    document.getElementById('desktop').addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      var menu = document.getElementById('contextMenu');
+      menu.style.display = 'block';
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+    });
+
+    document.addEventListener('click', function() {
+      document.getElementById('contextMenu').style.display = 'none';
+    });
+
+    function refreshDesktop() {
+      location.reload();
+    }
+
+    function findInStructure(path, structure) {
+      if (!structure) return null;
+      
+      var parts = path.split('/');
+      var current = { children: structure };
+      
+      for (var i = 0; i < parts.length; i++) {
+        if (!current.children) return null;
+        var found = null;
+        for (var j = 0; j < current.children.length; j++) {
+          if (current.children[j].name === parts[i]) {
+            found = current.children[j];
+            break;
+          }
+        }
+        if (!found) return null;
+        current = found;
+      }
+      return current;
+    }
+
+    function createWindow(title, content, options) {
+      options = options || {};
+      var id = 'win_' + Date.now();
+      var isImageViewer = options.isImageViewer || false;
+      
+      var windowEl = document.createElement('div');
+      windowEl.className = 'window active';
+      if (isImageViewer) windowEl.classList.add('image-viewer');
+      windowEl.id = id;
+      windowEl.style.left = (100 + Math.random() * 100) + 'px';
+      windowEl.style.top = (60 + Math.random() * 60) + 'px';
+      windowEl.style.width = options.width || '500px';
+      windowEl.style.height = options.height || '400px';
+      windowEl.style.zIndex = ++windowZIndex;
+      
+      windowEl.innerHTML = '<div class="window-header" onmousedown="startDrag(event, \\'' + id + '\\')">' +
+        '<svg class="win-icon" viewBox="0 0 24 24" fill="#f5c842"><path d="M3 5h6l2 2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>' +
+        '<span class="win-title">' + title + '</span>' +
+        '<div class="win-buttons">' +
+          '<button class="win-btn win-minimize" onclick="minimizeWindow(\\'' + id + '\\')">_</button>' +
+          '<button class="win-btn win-maximize" onclick="maximizeWindow(\\'' + id + '\\')">\u25a1</button>' +
+          '<button class="win-btn win-close" onclick="closeWindow(\\'' + id + '\\')">\u00d7</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="window-content">' + content + '</div>';
+
+      document.getElementById('windowContainer').appendChild(windowEl);
+      
+      var taskbarBtn = document.createElement('div');
+      taskbarBtn.className = 'taskbar-window active';
+      taskbarBtn.id = 'tb_' + id;
+      taskbarBtn.innerHTML = title;
+      taskbarBtn.onclick = function() { toggleWindow(id); };
+      document.getElementById('taskbar-windows').appendChild(taskbarBtn);
+
+      focusWindow(id);
+      return id;
+    }
+
+    function focusWindow(id) {
+      var win = document.getElementById(id);
+      if (!win) return;
+      
+      win.style.zIndex = ++windowZIndex;
+      
+      var allTb = document.querySelectorAll('.taskbar-window');
+      allTb.forEach(function(tb) { tb.classList.remove('active'); });
+      var tb = document.getElementById('tb_' + id);
+      if (tb) tb.classList.add('active');
+      
+      activeWindow = id;
+    }
+
+    function minimizeWindow(id) {
+      var win = document.getElementById(id);
+      if (win) win.classList.remove('active');
+      
+      var tb = document.getElementById('tb_' + id);
+      if (tb) tb.classList.remove('active');
+      
+      if (activeWindow === id) activeWindow = null;
+    }
+
+    function toggleWindow(id) {
+      var win = document.getElementById(id);
+      if (!win) return;
+      
+      if (win.classList.contains('active') && activeWindow === id) {
+        minimizeWindow(id);
+      } else {
+        win.classList.add('active');
+        focusWindow(id);
+      }
+    }
+
+    function maximizeWindow(id) {
+      var win = document.getElementById(id);
+      if (!win) return;
+      
+      if (win.style.width === '100%') {
+        win.style.width = '500px';
+        win.style.height = '400px';
+        win.style.left = '100px';
+        win.style.top = '60px';
+      } else {
+        win.style.width = '100%';
+        win.style.height = 'calc(100% - 40px)';
+        win.style.left = '0';
+        win.style.top = '0';
+      }
+    }
+
+    function closeWindow(id) {
+      var win = document.getElementById(id);
+      if (win) win.remove();
+      
+      var tb = document.getElementById('tb_' + id);
+      if (tb) tb.remove();
+      
+      if (activeWindow === id) activeWindow = null;
+    }
+
+    function startDrag(e, id) {
+      var win = document.getElementById(id);
+      if (!win) return;
+      
+      dragData = {
+        id: id,
+        startX: e.clientX,
+        startY: e.clientY,
+        startLeft: win.offsetLeft,
+        startTop: win.offsetTop
+      };
+      
+      focusWindow(id);
+    }
+
+    document.addEventListener('mousemove', function(e) {
+      if (!dragData) return;
+      
+      var win = document.getElementById(dragData.id);
+      if (!win) return;
+      
+      var dx = e.clientX - dragData.startX;
+      var dy = e.clientY - dragData.startY;
+      
+      win.style.left = (dragData.startLeft + dx) + 'px';
+      win.style.top = (dragData.startTop + dy) + 'px';
+    });
+
+    document.addEventListener('mouseup', function() {
+      dragData = null;
+    });
+
+    document.addEventListener('mousedown', function(e) {
+      var win = e.target.closest('.window');
+      if (win && win.id) {
+        focusWindow(win.id);
+      }
+    });
+
+    function openFolder(folderPath) {
+      var folder = findInStructure(folderPath, FOLDER_STRUCTURE);
+      if (!folder || !folder.children) {
+        folder = { name: folderPath, children: [] };
+      }
+
+      var files = [];
+      var subfolders = [];
+
+      for (var i = 0; i < folder.children.length; i++) {
+        var child = folder.children[i];
+        if (child.type === 'file' && 
+            child.name !== 'index.html' && child.name !== 'generate-index.js' && 
+            child.name !== 'netlify.toml' && child.name !== 'README.md' && 
+            child.name !== 'logo512.png' && child.name !== 'background.gif' &&
+            child.name !== 'background.jpg' && child.name !== 'background.png') {
+          files.push(child);
+        } else if (child.type === 'folder') {
+          subfolders.push(child);
+        }
+      }
+
+      // Breadcrumb
+      var parts = folderPath.split('/');
+      var breadcrumbHTML = '<div class="window-breadcrumb">';
+      for (var b = 0; b < parts.length; b++) {
+        if (b > 0) breadcrumbHTML += '<span class="separator">></span>';
+        var crumbPath = parts.slice(0, b + 1).join('/');
+        breadcrumbHTML += '<span onclick="openFolder(\\'' + crumbPath + '\\')">' + parts[b] + '</span>';
+      }
+      breadcrumbHTML += '</div>';
+
+      var iconsHTML = '';
+
+      // Pastas primeiro
+      for (var s = 0; s < subfolders.length; s++) {
+        var sub = subfolders[s];
+        iconsHTML += '<div class="folder-icon" ondblclick="openFolder(\\'' + sub.path + '\\')">' +
+          '<svg viewBox="0 0 48 48" fill="none"><path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/></svg>' +
+          '<span>' + sub.name + '</span>' +
+        '</div>';
+      }
+
+      // Depois arquivos
+      for (var f = 0; f < files.length; f++) {
+        var file = files[f];
+        var ext = file.ext ? file.ext.toLowerCase() : '';
+        var type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+                   ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other';
+        iconsHTML += '<div class="file-icon" ondblclick="openFile(\\'' + file.path + '\\')" title="' + file.name + ' - ' + formatSize(file.size || 0) + '">' +
+          getFileIconSVG(type) +
+          '<span>' + file.name + '</span>' +
+        '</div>';
+      }
+
+      var content = breadcrumbHTML + 
+        '<div class="file-grid">' + (iconsHTML || '<p style="padding:20px;color:#666;">Pasta vazia</p>') + '</div>' +
+        '<div class="window-footer">' + subfolders.length + ' pasta(s) | ' + files.length + ' arquivo(s)</div>';
+
+      createWindow(folder.name || folderPath, content, { width: '600px', height: '450px' });
+    }
+
+    function renderTIFF(url, containerId) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      
+      container.innerHTML = '<div class="loading">Carregando TIFF...</div>';
+      
+      fetch(url)
+        .then(function(response) {
+          if (!response.ok) throw new Error('Erro ao carregar');
+          return response.arrayBuffer();
+        })
+        .then(function(arrayBuffer) {
+          return GeoTIFF.fromArrayBuffer(arrayBuffer);
+        })
+        .then(function(tiff) {
+          return tiff.getImage();
+        })
+        .then(function(image) {
+          var width = image.getWidth();
+          var height = image.getHeight();
+          
+          var maxDim = 2000;
+          var scale = 1;
+          if (width > maxDim || height > maxDim) {
+            scale = maxDim / Math.max(width, height);
+          }
+          
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.floor(width * scale);
+          canvas.height = Math.floor(height * scale);
+          canvas.style.maxWidth = '100%';
+          canvas.style.maxHeight = '100%';
+          canvas.style.objectFit = 'contain';
+          
+          container.innerHTML = '';
+          container.appendChild(canvas);
+          
+          return image.readRasters({ window: [0, 0, width, height] });
+        })
+        .then(function(rasters) {
+          var canvas = container.querySelector('canvas');
+          if (!canvas) return;
+          
+          var ctx = canvas.getContext('2d');
+          var imageData = ctx.createImageData(canvas.width, canvas.height);
+          
+          var r = rasters[0];
+          var g = rasters[1] || rasters[0];
+          var b = rasters[2] || rasters[0];
+          var hasAlpha = rasters.length >= 4;
+          var alpha = hasAlpha ? rasters[3] : null;
+          
+          var srcWidth = rasters[0].width;
+          var srcHeight = rasters[0].length / rasters[0].width;
+          var scaleX = srcWidth / canvas.width;
+          var scaleY = srcHeight / canvas.height;
+          
+          for (var y = 0; y < canvas.height; y++) {
+            for (var x = 0; x < canvas.width; x++) {
+              var srcX = Math.floor(x * scaleX);
+              var srcY = Math.floor(y * scaleY);
+              var srcIdx = srcY * srcWidth + srcX;
+              var dstIdx = (y * canvas.width + x) * 4;
+              
+              imageData.data[dstIdx] = r[srcIdx] !== undefined ? r[srcIdx] : 0;
+              imageData.data[dstIdx + 1] = g[srcIdx] !== undefined ? g[srcIdx] : 0;
+              imageData.data[dstIdx + 2] = b[srcIdx] !== undefined ? b[srcIdx] : 0;
+              imageData.data[dstIdx + 3] = hasAlpha && alpha[srcIdx] !== undefined ? alpha[srcIdx] : 255;
+            }
+          }
+          
+          ctx.putImageData(imageData, 0, 0);
+        })
+        .catch(function(err) {
+          console.error('Erro ao renderizar TIFF:', err);
+          container.innerHTML = '<div class="loading">Erro ao renderizar TIFF. <a href="' + url + '" download style="color:#67e8f9;">Clique para baixar</a></div>';
+        });
+    }
+
+    function openFile(filePath) {
+      var file = findInStructure(filePath, FOLDER_STRUCTURE);
+      if (!file || file.type !== 'file') return;
+
+      var ext = file.ext ? file.ext.toLowerCase() : '';
+
+      if (ext === '.pdf') {
+        var content = '<iframe src="/' + file.path + '#toolbar=0&navpanes=0" style="width:100%;height:100%;border:none;"></iframe>' +
+          '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>';
+        createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
+      } else if (ext === '.tiff' || ext === '.tif' || ext === '.geotiff') {
+        var tiffContainerId = 'tiff_container_' + Date.now();
+        var content = '<div id="' + tiffContainerId + '" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"></div>' +
+          '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
+          '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+        
+        var winId = createWindow(file.name, content, { width: '750px', height: '600px', isImageViewer: true });
+        
+        setTimeout(function() {
+          renderTIFF('/' + file.path, tiffContainerId);
+        }, 100);
+      } else if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif' || ext === '.bmp' || ext === '.webp') {
+        var content = '<img src="/' + file.path + '" alt="' + file.name + '" onerror="this.style.display=\\'none\\';this.parentElement.querySelector(\\'.loading\\').style.display=\\'block\\';">' +
+          '<div class="loading" style="display:none;">Erro ao carregar imagem</div>' +
+          '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
+          '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+        createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
+      } else {
+        var content = '<div class="info-content">' +
+          '<div class="big-icon">\ud83d\udcc4</div>' +
+          '<h3>' + file.name + '</h3>' +
+          '<p>Tipo: ' + ext.replace('.', '').toUpperCase() + '</p>' +
+          '<p>Tamanho: ' + formatSize(file.size || 0) + '</p>' +
+          '<p style="word-break:break-all;">Caminho: /' + file.path + '</p>' +
+          '<button onclick="copyToClipboard(\\'/' + file.path + '\\')">Copiar URL</button>' +
+          '<a href="/' + file.path + '" download class="download-btn">Download</a>' +
+        '</div>';
+        createWindow(file.name, content, { width: '400px', height: '350px' });
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(function() {
+        alert('URL copiada: ' + text);
+      });
+    }
+  </script>
+</body>
+</html>`;
+
+fs.writeFileSync('index.html', html);
+console.log('✅ index.html gerado com sucesso!');
+console.log('📦 ' + assets.length + ' assets encontrados');
+console.log('📁 ' + folders.length + ' pastas encontradas');
+if (fs.existsSync('./background.gif')) {
+  console.log('🎞️ Background GIF detectado!');
+}
