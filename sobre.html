@@ -3,15 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Sobre · Assets Mapa Imbé</title>
-  <!-- Fontes premium + ícones -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre - Assets Mapa Imbé</title>
   <style>
     * {
       margin: 0;
@@ -19,513 +12,594 @@
       box-sizing: border-box;
     }
 
-    :root {
-      --bg-deep: #0b1424;
-      --bg-card: rgba(18, 28, 52, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-highlight: rgba(255, 255, 255, 0.06);
-      --accent-cyan: #22d3ee;
-      --accent-blue: #3b82f6;
-      --accent-indigo: #818cf8;
-      --text-primary: #f1f5f9;
-      --text-secondary: #cbd5e1;
-      --text-muted: #94a3b8;
-      --shadow-glow: 0 20px 40px -12px rgba(0, 160, 255, 0.25);
-      --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --transition-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 30% 10%, #1e293b 0%, #0b1424 85%);
+      background: #3a6ea5;
+      font-family: 'Tahoma', 'Segoe UI', Arial, sans-serif;
+      font-size: 11px;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      margin: 0;
-      position: relative;
-      overflow-x: hidden;
+      padding: 20px;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"><stop offset="0%25" style="stop-color:%233a6ea5"/><stop offset="100%25" style="stop-color:%23568fc7"/></linearGradient></defs><rect fill="url(%23g)" width="100" height="100"/></svg>');
+      background-size: cover;
     }
 
-    /* Partículas de fundo animadas (efeito vivo) */
-    body::before {
-      content: "";
+    /* Desktop com ícones */
+    .desktop {
       position: fixed;
       inset: 0;
-      background-image:
-        radial-gradient(circle at 15% 30%, rgba(34, 211, 238, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 85% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 50% 90%, rgba(129, 140, 248, 0.08) 0%, transparent 35%);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       pointer-events: none;
-      z-index: 0;
-      animation: ambientPulse 10s infinite alternate ease-in-out;
     }
 
-    @keyframes ambientPulse {
-      0% {
-        opacity: 0.7;
-        transform: scale(1);
-      }
-
-      100% {
-        opacity: 1;
-        transform: scale(1.03);
-      }
+    .desktop-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: fit-content;
     }
 
-    .glass-panel {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 680px;
-      background: var(--bg-card);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-glow), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-      padding: 2.2rem 2rem 2rem;
-      color: var(--text-primary);
-      transition: transform 0.3s var(--transition-smooth), box-shadow 0.4s;
-      animation: fadeSlideUp 0.7s var(--transition-smooth);
-    }
-
-    .glass-panel:hover {
-      box-shadow: 0 30px 55px -15px rgba(0, 180, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    }
-
-    @keyframes fadeSlideUp {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Header com logo e status */
-    .premium-header {
+    .desktop-icon {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 2.2rem;
+      gap: 4px;
+      cursor: pointer;
+      color: white;
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+      pointer-events: all;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      transition: all 0.1s;
     }
 
-    .logo-wrapper {
-      position: relative;
-      margin-bottom: 1.2rem;
+    .desktop-icon:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
-    .logo-glow {
-      width: 80px;
-      height: 80px;
-      border-radius: 22px;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      transition: all 0.3s;
-    }
-
-    .logo-glow img {
-      width: 72px;
-      height: 72px;
-      border-radius: 18px;
-      object-fit: contain;
-      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
-    }
-
-    .online-badge {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      background: #10b981;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.2rem 0.7rem;
-      border-radius: 30px;
-      border: 2px solid #0b1424;
-      letter-spacing: 0.4px;
-      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.6);
-      backdrop-filter: blur(4px);
-    }
-
-    .app-title {
-      font-size: 1.9rem;
-      font-weight: 700;
-      background: linear-gradient(to right, #e0f2fe, #bae6fd, #7dd3fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.5px;
-      margin: 0.2rem 0 0.1rem;
-    }
-
-    .version-chip {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 0.25rem 1.1rem;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #b9c7e0;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      margin-top: 0.35rem;
-    }
-
-    .version-chip i {
-      color: #22d3ee;
-      font-size: 0.7rem;
-    }
-
-    /* Seções com ícones e tipografia refinada */
-    .section {
-      margin-bottom: 2rem;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: var(--radius-lg);
-      padding: 1.2rem 1.4rem;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      transition: background 0.3s;
-    }
-
-    .section:hover {
-      background: rgba(255, 255, 255, 0.045);
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .section-header i {
-      font-size: 1.3rem;
-      color: #22d3ee;
-      background: rgba(34, 211, 238, 0.12);
-      padding: 0.45rem;
-      border-radius: 12px;
-      width: 2.5rem;
-      text-align: center;
-    }
-
-    .section-header h2 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      letter-spacing: -0.2px;
-      color: #e2e8f0;
-    }
-
-    .description {
-      font-size: 0.92rem;
-      color: #cbd5e1;
-      line-height: 1.65;
-      margin-bottom: 0.5rem;
-    }
-
-    .format-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-top: 0.7rem;
-    }
-
-    .format-badge {
-      background: rgba(34, 211, 238, 0.08);
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      border-radius: 30px;
-      padding: 0.4rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #b9e0f7;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      backdrop-filter: blur(4px);
-      transition: all 0.25s;
-    }
-
-    .format-badge i {
-      color: #22d3ee;
-      font-size: 0.8rem;
-    }
-
-    .format-badge:hover {
-      background: rgba(34, 211, 238, 0.18);
-      border-color: rgba(34, 211, 238, 0.5);
-      transform: translateY(-2px);
-    }
-
-    .tech-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .tech-badge {
-      background: rgba(129, 140, 248, 0.1);
-      border: 1px solid rgba(129, 140, 248, 0.3);
-      color: #c7d2fe;
-      padding: 0.3rem 1rem;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.2px;
-      transition: 0.2s;
-    }
-
-    .tech-badge:hover {
-      background: #818cf822;
-      border-color: #a5b4fc;
-    }
-
-    .developer-card {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 18px;
-      padding: 1rem 1.2rem;
-      margin-top: 0.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .dev-avatar {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
+    .desktop-icon img {
       width: 48px;
       height: 48px;
-      border-radius: 14px;
+      image-rendering: pixelated;
+    }
+
+    .desktop-icon span {
+      font-size: 11px;
+      text-align: center;
+      max-width: 70px;
+    }
+
+    /* Barra de tarefas */
+    .taskbar {
+      background: linear-gradient(to bottom, #3168d5, #2156c4 3%, #1a4ca8 5%, #2156c4 8%, #3168d5);
+      border-top: 2px solid #5180e0;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+      pointer-events: all;
+    }
+
+    .start-button {
+      background: linear-gradient(to bottom, #3c8c3c, #2d6e2d);
+      border: none;
+      border-radius: 0 8px 8px 0;
+      padding: 4px 16px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    }
+
+    .start-button:hover {
+      background: linear-gradient(to bottom, #4a9e4a, #3a7e3a);
+    }
+
+    .start-button img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+    }
+
+    .taskbar-divider {
+      width: 1px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 4px;
+    }
+
+    .taskbar-time {
+      margin-left: auto;
+      color: white;
+      font-size: 11px;
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 2px;
+    }
+
+    .taskbar-item {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      padding: 4px 12px;
+      color: white;
+      font-size: 11px;
+      min-width: 140px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .taskbar-item.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Janela principal */
+    .window {
+      background: #ece9d8;
+      border: 2px solid #0054e3;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 white;
+      width: 100%;
+      max-width: 550px;
+      position: relative;
+      z-index: 100;
+      pointer-events: all;
+      animation: windowOpen 0.3s ease-out;
+    }
+
+    @keyframes windowOpen {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .window-titlebar {
+      background: linear-gradient(to bottom, #0a64f0 0%, #0054e3 3%, #0054e3 5%, #0048cc 8%, #0054e3);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      border-radius: 6px 6px 0 0;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .window-titlebar img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .window-controls {
+      margin-left: auto;
+      display: flex;
+      gap: 2px;
+    }
+
+    .window-controls button {
+      width: 21px;
+      height: 21px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 1.3rem;
       color: white;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
     }
 
-    .dev-info p {
-      font-size: 0.9rem;
-      font-weight: 600;
+    .btn-minimize {
+      background: linear-gradient(to bottom, #3c8c3c, #2d6e2d);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
-    .dev-info span {
-      font-size: 0.8rem;
-      color: #94a3b8;
-      display: block;
+    .btn-maximize {
+      background: linear-gradient(to bottom, #3c8c3c, #2d6e2d);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
-    .footer-premium {
-      margin-top: 2rem;
+    .btn-close {
+      background: linear-gradient(to bottom, #cc3333, #aa2222);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-close:hover {
+      background: linear-gradient(to bottom, #dd4444, #bb3333);
+    }
+
+    .window-body {
+      padding: 16px;
+      background: #ece9d8;
+    }
+
+    /* Tabs */
+    .tabs {
       display: flex;
-      flex-direction: column;
+      border-bottom: 1px solid #aca899;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 6px 16px;
+      background: #ece9d8;
+      border: 1px solid #aca899;
+      border-bottom: none;
+      margin-right: -1px;
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: 3px 3px 0 0;
+      position: relative;
+      bottom: -1px;
+    }
+
+    .tab.active {
+      background: white;
+      font-weight: bold;
+      border-bottom: 1px solid white;
+    }
+
+    .tab:hover:not(.active) {
+      background: #f0efe7;
+    }
+
+    /* Conteúdo da janela */
+    .about-content {
+      background: white;
+      border: 1px solid #aca899;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .about-logo {
+      float: left;
+      width: 64px;
+      height: 64px;
+      margin-right: 12px;
+      margin-bottom: 8px;
+      image-rendering: auto;
+      border: 1px solid #ccc;
+      background: white;
+      padding: 2px;
+    }
+
+    .about-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2156c4;
+      margin-bottom: 4px;
+    }
+
+    .about-version {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .about-divider {
+      border: none;
+      border-top: 1px solid #aca899;
+      margin: 10px 0;
+    }
+
+    .about-section {
+      margin-bottom: 10px;
+    }
+
+    .about-section h3 {
+      font-size: 12px;
+      font-weight: bold;
+      color: #2156c4;
+      margin-bottom: 4px;
+      display: flex;
       align-items: center;
-      gap: 0.8rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 1.5rem;
+      gap: 4px;
     }
 
-    .social-links {
-      display: flex;
-      gap: 1.2rem;
-      font-size: 1.2rem;
+    .about-section p {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.4;
+      margin-left: 20px;
     }
 
-    .social-links a {
-      color: #94a3b8;
-      transition: all 0.25s;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 0.5rem;
-      border-radius: 12px;
-      display: flex;
+    .about-section ul {
+      list-style: none;
+      margin-left: 20px;
     }
 
-    .social-links a:hover {
-      color: #22d3ee;
-      background: rgba(34, 211, 238, 0.12);
-      transform: translateY(-3px);
-    }
-
-    .copyright {
-      font-size: 0.8rem;
-      color: #64748b;
+    .about-section li {
+      font-size: 11px;
+      color: #333;
+      padding: 2px 0;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 4px;
     }
 
-    #currentYear {
-      font-weight: 600;
-      color: #94a3b8;
+    .about-section li::before {
+      content: "►";
+      font-size: 8px;
+      color: #06b6d4;
     }
 
-    /* Animação de loading sutil */
-    @media (max-width: 500px) {
-      .glass-panel {
-        padding: 1.5rem;
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-left: 20px;
+    }
+
+    .tech-tag {
+      background: #e8f0fc;
+      border: 1px solid #b8cfe8;
+      padding: 2px 6px;
+      font-size: 10px;
+      border-radius: 2px;
+      color: #2156c4;
+    }
+
+    .xp-button {
+      background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+      border: 1px solid #888;
+      padding: 4px 16px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 2px;
+      font-family: 'Tahoma', sans-serif;
+      box-shadow: inset 0 1px 0 white;
+    }
+
+    .xp-button:hover {
+      background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+    }
+
+    .status-bar {
+      border-top: 1px solid #aca899;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ece9d8;
+    }
+
+    .status-bar .led {
+      width: 8px;
+      height: 8px;
+      background: #00cc00;
+      border-radius: 50%;
+      box-shadow: 0 0 4px #00cc00;
+    }
+
+    /* Campo de busca */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .search-box input {
+      border: 1px solid #aca899;
+      padding: 3px 6px;
+      font-size: 11px;
+      font-family: 'Tahoma', sans-serif;
+      width: 200px;
+    }
+
+    .search-box button {
+      background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+      border: 1px solid #888;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .window {
+        max-width: 100%;
       }
 
-      .app-title {
-        font-size: 1.5rem;
+      .desktop-icons {
+        display: none;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="glass-panel">
 
-    <!-- Header dinâmico -->
-    <div class="premium-header">
-      <div class="logo-wrapper">
-        <div class="logo-glow">
-          <!-- Fallback elegante caso imagem não carregue -->
-          <img
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e293b'/%3E%3Cpath d='M30 70 L50 25 L70 70' stroke='%2322d3ee' stroke-width='6' fill='none'/%3E%3Ccircle cx='50' cy='55' r='8' fill='%2322d3ee'/%3E%3C/svg%3E"
-            alt="Mapa Imbé Logo"
-            onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231e293b%22/%3E%3Ctext x=%2250%22 y=%2265%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22%2322d3ee%22%3E🌊%3C/text%3E%3C/svg%3E';">
-        </div>
-        <span class="online-badge"><i class="fas fa-map-pin"></i> ativo</span>
+  <!-- Desktop com ícones -->
+  <div class="desktop">
+    <div class="desktop-icons">
+      <div class="desktop-icon">
+        <img
+          src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect fill='%23ECE9D8' width='48' height='48' rx='4'/><rect fill='%23FFD700' x='8' y='10' width='32' height='24' rx='2'/><circle fill='%233168D5' cx='24' cy='22' r='6'/></svg>"
+          alt="Mapa">
+        <span>Meu Mapa</span>
       </div>
-      <h1 class="app-title">Assets Mapa Imbé</h1>
-      <div class="version-chip">
-        <i class="fas fa-code-branch"></i> v1.0.0 · build <span id="dynamicYear"></span>
+      <div class="desktop-icon">
+        <img
+          src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect fill='%23ECE9D8' width='48' height='48' rx='4'/><rect fill='%23006400' x='12' y='8' width='24' height='32' rx='2'/><rect fill='white' x='16' y='16' width='16' height='4' rx='1'/><rect fill='white' x='16' y='24' width='12' height='4' rx='1'/></svg>"
+          alt="Assets">
+        <span>Assets</span>
       </div>
-    </div>
-
-    <!-- Sobre o sistema -->
-    <div class="section">
-      <div class="section-header">
-        <i class="fas fa-globe-americas"></i>
-        <h2>Sobre o sistema</h2>
-      </div>
-      <p class="description">
-        Interface avançada inspirada no Windows XP para navegação e preview de ativos geoespaciais do município de Imbé,
-        Rio Grande do Sul. Renderização nativa de dados geográficos com performance otimizada.
-      </p>
-    </div>
-
-    <!-- Formatos suportados (dinâmico visual) -->
-    <div class="section">
-      <div class="section-header">
-        <i class="fas fa-file-alt"></i>
-        <h2>Formatos suportados</h2>
-      </div>
-      <div class="format-grid" id="formatContainer">
-        <!-- Preenchido via JS para demonstrar dinamismo -->
-      </div>
-    </div>
-
-    <!-- Tecnologias -->
-    <div class="section">
-      <div class="section-header">
-        <i class="fas fa-microchip"></i>
-        <h2>Tecnologias</h2>
-      </div>
-      <div class="tech-cloud" id="techContainer"></div>
-    </div>
-
-    <!-- Desenvolvedor -->
-    <div class="section">
-      <div class="section-header">
-        <i class="fas fa-user-astronaut"></i>
-        <h2>Desenvolvimento</h2>
-      </div>
-      <div class="developer-card">
-        <div class="dev-avatar">VM</div>
-        <div class="dev-info">
-          <p>Vinícius Magalhães Verdun</p>
-          <span>Setor de Informática · Prefeitura Municipal de Imbé</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer com ano automático e links -->
-    <div class="footer-premium">
-      <div class="social-links">
-        <a href="https://github.com/MagalhaesVini" target="_blank" rel="noopener" aria-label="GitHub">
-          <i class="fab fa-github"></i>
-        </a>
-        <a href="mailto:vinizipi@gmail.com" aria-label="Email">
-          <i class="fas fa-envelope"></i>
-        </a>
-        <a href="https://www.linkedin.com/in/magalhaesvinicius/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <i class="fab fa-linkedin"></i>
-        </a>
-      </div>
-      <div class="copyright">
-        <i class="far fa-copyright"></i> <span id="currentYearDisplay"></span> Prefeitura Municipal de Imbé/RS
+      <div class="desktop-icon">
+        <img
+          src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect fill='%23ECE9D8' width='48' height='48' rx='4'/><circle fill='%23CC0000' cx='24' cy='24' r='16'/><text fill='white' x='24' y='30' text-anchor='middle' font-size='20' font-weight='bold'>?</text></svg>"
+          alt="Sobre">
+        <span>Sobre</span>
       </div>
     </div>
   </div>
 
+  <!-- Janela Sobre -->
+  <div class="window">
+    <div class="window-titlebar">
+      <img
+        src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect fill='white' width='16' height='16' rx='2'/><circle fill='%233168D5' cx='8' cy='8' r='4'/></svg>"
+        alt="Icon">
+      Sobre - Assets Mapa Virtual de Imbé/RS
+      <div class="window-controls">
+        <button class="btn-minimize">–</button>
+        <button class="btn-maximize">□</button>
+        <button class="btn-close">✕</button>
+      </div>
+    </div>
+
+    <div class="window-body">
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active">Geral</div>
+        <div class="tab">Formatos</div>
+        <div class="tab">Suporte</div>
+      </div>
+
+      <!-- Conteúdo -->
+      <div class="about-content">
+        <img src="/logo512.png" alt="Logo" class="about-logo" onerror="this.style.display='none'">
+        <div class="about-title">Assets Mapa Virtual de Imbé/RS</div>
+        <div class="about-version">Versão 1.0.0 • Build <span id="xpYear"></span></div>
+
+        <hr class="about-divider">
+
+        <div class="about-section">
+          <h3>🖥️ Sistema</h3>
+          <p>Interface para navegação e preview de ativos geoespaciais do município de Imbé, Rio Grande do Sul.</p>
+        </div>
+
+        <div class="about-section">
+          <h3>📂 Formatos Suportados</h3>
+          <ul id="formatList">
+            <!-- JS preenche -->
+          </ul>
+        </div>
+
+        <div class="about-section">
+          <h3>🛠️ Tecnologias</h3>
+          <div class="tech-list" id="techList">
+            <!-- JS preenche -->
+          </div>
+        </div>
+
+        <hr class="about-divider">
+
+        <div class="about-section">
+          <p style="margin-left:0; font-weight: bold;">Desenvolvido por Vinícius Magalhães Verdun</p>
+          <p style="margin-left:0;">Setor de Informática • Prefeitura Municipal de Imbé</p>
+        </div>
+      </div>
+
+      <!-- Botões XP -->
+      <div style="text-align: right; margin-bottom: 8px;">
+        <button class="xp-button" onclick="alert('📧 vinizipi@gmail.com')">✉ E-mail</button>
+        <button class="xp-button" onclick="window.open('https://github.com/MagalhaesVini', '_blank')">🔗 GitHub</button>
+        <button class="xp-button" onclick="window.open('https://www.linkedin.com/in/magalhaesvinicius/', '_blank')">🔗
+          LinkedIn</button>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span class="led"></span>
+        <span>Conectado</span>
+        <span style="margin-left: auto;">© <span id="currentYearDisplay"></span> Prefeitura Municipal de Imbé/RS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de tarefas -->
+  <div class="taskbar">
+    <button class="start-button">
+      <span style="font-size:16px;">⊞</span> Iniciar
+    </button>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-item active">
+      📄 Sobre - Assets Mapa...
+    </div>
+    <div class="taskbar-time" id="taskbarClock"></div>
+  </div>
+
   <script>
     (function () {
-      // ---------- ANO AUTOMÁTICO ----------
+      // Ano automático
       const year = new Date().getFullYear();
+      document.getElementById('xpYear').textContent = year;
+      document.getElementById('currentYearDisplay').textContent = year;
 
-      // Atualiza o ano no footer e no build dinâmico
-      const yearSpan = document.getElementById('currentYearDisplay');
-      const dynamicYearSpan = document.getElementById('dynamicYear');
-
-      if (yearSpan) yearSpan.textContent = year;
-      if (dynamicYearSpan) dynamicYearSpan.textContent = year;
-
-      // ---------- LISTA DE FORMATOS (dinâmica) ----------
+      // Formatos suportados
       const formats = [
-        { icon: 'fa-solid fa-earth-americas', name: 'GeoTIFF' },
-        { icon: 'fa-regular fa-image', name: 'PNG / JPG' },
-        { icon: 'fa-solid fa-file-pdf', name: 'PDF' },
-        { icon: 'fa-solid fa-code', name: 'JSON / GeoJSON' },
-        { icon: 'fa-solid fa-file-code', name: 'HTML/CSS/JS' },
-        { icon: 'fa-regular fa-file-lines', name: 'TXT / MD' },
-        { icon: 'fa-solid fa-cube', name: 'GIF / WebP' }
+        'GeoTIFF (.tiff, .geotiff) - Renderização nativa',
+        'Imagens (.png, .jpg, .gif, .webp, .bmp)',
+        'PDF - Visualização integrada',
+        'JSON / GeoJSON - Syntax highlighting',
+        'Texto e código (.txt, .md, .js, .css, .html)'
       ];
 
-      const formatContainer = document.getElementById('formatContainer');
-      if (formatContainer) {
-        formatContainer.innerHTML = formats.map(f =>
-          `<span class="format-badge"><i class="${f.icon}"></i> ${f.name}</span>`
-        ).join('');
+      const formatList = document.getElementById('formatList');
+      formatList.innerHTML = formats.map(f => `<li>${f}</li>`).join('');
+
+      // Tecnologias
+      const techs = ['Netlify', 'GeoTIFF.js', 'Vanilla JS', 'CSS3', 'Node.js', 'Leaflet', 'PostGIS'];
+      const techList = document.getElementById('techList');
+      techList.innerHTML = techs.map(t => `<span class="tech-tag">${t}</span>`).join('');
+
+      // Relógio na barra de tarefas
+      function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('taskbarClock').textContent = `${hours}:${minutes}`;
       }
+      updateClock();
+      setInterval(updateClock, 10000);
 
-      // ---------- TECNOLOGIAS ----------
-      const techs = [
-        'Netlify', 'GeoTIFF.js', 'Vanilla JS', 'CSS3', 'Node.js', 'Leaflet', 'PostGIS'
-      ];
-
-      const techContainer = document.getElementById('techContainer');
-      if (techContainer) {
-        techContainer.innerHTML = techs.map(t =>
-          `<span class="tech-badge">${t}</span>`
-        ).join('');
-      }
-
-      // ---------- TOQUE DE CLASSE: atualiza relógio ao vivo (opcional) ----------
-      console.log(`✨ Assets Mapa Imbé · ${year} · Interface premium carregada.`);
-
-      // Pequeno easter egg: se clicar no avatar do dev, mostra mensagem
-      const devAvatar = document.querySelector('.dev-avatar');
-      if (devAvatar) {
-        devAvatar.addEventListener('click', () => {
-          alert('🌊 Desenvolvido com foco em geotecnologia e design refinado.');
+      // Tabs interativas
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
         });
-        devAvatar.style.cursor = 'pointer';
-      }
+      });
+
+      // Botão fechar
+      document.querySelector('.btn-close').addEventListener('click', function () {
+        document.querySelector('.window').style.display = 'none';
+      });
+
+      // Botão iniciar
+      document.querySelector('.start-button').addEventListener('click', function () {
+        alert('⊞ Menu Iniciar - Windows XP Style\n\n🌊 Assets Mapa Imbé v1.0.0');
+      });
+
+      console.log(`🖥️ Windows XP Style · Assets Mapa Imbé · ${year} · Desenvolvido por Vinícius Magalhães Verdun`);
     })();
   </script>
 </body>
