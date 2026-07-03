@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Assets Mapa Imbé</title>
   <link rel="icon" href="/logo512.png">
   <style>
@@ -16,9 +18,12 @@
       cursor: default;
       user-select: none;
       background: #000;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
     }
 
-       /* Boot Screen */
+    /* Boot Screen */
     #bootScreen {
       position: fixed;
       top: 0;
@@ -60,19 +65,19 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      padding: 20px;
+      padding: 15px;
       display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
-      gap: 20px;
+      gap: 12px;
     }
 
     .desktop-icon {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 80px;
-      padding: 10px 5px;
+      width: 72px;
+      padding: 8px 4px;
       border: 2px solid transparent;
       border-radius: 4px;
       cursor: pointer;
@@ -85,44 +90,51 @@
       border-color: rgba(255,255,255,0.5);
     }
 
+    .desktop-icon:active {
+      background: rgba(255,255,255,0.35);
+      border-color: #3168d5;
+    }
+
     .desktop-icon svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 6px;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 4px;
       filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
     }
 
     .desktop-icon span {
       color: white;
-      font-size: 11px;
+      font-size: 10px;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
       word-break: break-word;
       line-height: 1.2;
+      max-width: 68px;
     }
 
     #desktop-footer {
       position: absolute;
       bottom: 50px;
-      right: 20px;
+      right: 15px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
+      gap: 4px;
     }
 
     #desktop-footer .credit {
       color: rgba(255,255,255,0.9);
-      font-size: 11px;
+      font-size: 10px;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     #desktop-footer .credit:hover { color: #67e8f9; }
-    #desktop-footer .credit svg { width: 14px; height: 14px; }
+    #desktop-footer .credit svg { width: 12px; height: 12px; }
 
+    /* Taskbar */
     #taskbar {
       position: fixed;
       bottom: 0;
@@ -136,49 +148,56 @@
       padding: 0 4px;
       z-index: 9999;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     #startBtn {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 14px;
-      height: 32px;
+      gap: 4px;
+      padding: 4px 10px;
+      height: 30px;
       background: linear-gradient(to bottom, #6dad3b, #4c8c2a);
       border: none;
       border-radius: 0 8px 8px 0;
       color: white;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       box-shadow: 0 0 0 1px #3a7a1f;
       margin-right: 4px;
+      white-space: nowrap;
     }
 
     #startBtn:hover { background: linear-gradient(to bottom, #7dbd4b, #5c9c3a); }
-    #startBtn img { width: 20px; height: 20px; }
+    #startBtn img { width: 18px; height: 18px; border-radius: 4px; }
 
     #taskbar-windows {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       flex: 1;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .taskbar-window {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      height: 28px;
+      gap: 4px;
+      padding: 4px 8px;
+      height: 26px;
       background: linear-gradient(to bottom, #4b7fd9, #3a6cc9);
       border: 1px solid #1a4aa8;
       border-radius: 3px;
       color: white;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
-      min-width: 120px;
+      min-width: 80px;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
     }
 
@@ -190,22 +209,25 @@
 
     #taskbar-clock {
       margin-left: auto;
-      padding: 0 12px;
+      padding: 0 8px;
       color: white;
-      font-size: 12px;
+      font-size: 11px;
       text-align: right;
       background: rgba(0,0,0,0.1);
-      height: 32px;
+      height: 30px;
       display: flex;
       align-items: center;
       border-radius: 3px;
+      white-space: nowrap;
     }
 
+    /* Start Menu */
     #startMenu {
       position: fixed;
       bottom: 40px;
       left: 0;
-      width: 340px;
+      width: 280px;
+      max-width: 85vw;
       background: linear-gradient(to bottom, #f0f4fc, #dce8f8);
       border: 2px solid #1a4aa8;
       border-bottom: none;
@@ -213,36 +235,38 @@
       box-shadow: 4px -4px 20px rgba(0,0,0,0.4);
       z-index: 10000;
       display: none;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     #startMenu.show { display: block; }
 
     .start-menu-header {
       background: linear-gradient(to bottom, #2156c4, #1a4aa8);
-      padding: 12px;
+      padding: 10px;
       border-radius: 6px 6px 0 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .start-menu-header img { width: 40px; height: 40px; border-radius: 8px; }
-    .start-menu-header span { color: white; font-weight: bold; font-size: 15px; }
-    .start-menu-items { padding: 4px 0; }
+    .start-menu-header img { width: 32px; height: 32px; border-radius: 8px; }
+    .start-menu-header span { color: white; font-weight: bold; font-size: 13px; }
+    .start-menu-items { padding: 2px 0; }
 
     .start-menu-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
+      gap: 8px;
+      padding: 10px 14px;
       cursor: pointer;
       font-size: 12px;
       color: #1a3a6a;
     }
 
     .start-menu-item:hover { background: #3168d5; color: white; }
-    .start-menu-item svg { width: 24px; height: 24px; }
+    .start-menu-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 
+    /* Windows */
     .window {
       position: fixed;
       background: #f0f4fc;
@@ -252,8 +276,8 @@
       z-index: 100;
       display: none;
       flex-direction: column;
-      min-width: 400px;
-      min-height: 300px;
+      min-width: 280px;
+      min-height: 200px;
       overflow: hidden;
       resize: both;
     }
@@ -267,12 +291,12 @@
       background: linear-gradient(to bottom, #3c6fd5, #2156c4);
       border-radius: 6px 6px 0 0;
       cursor: move;
-      gap: 6px;
+      gap: 4px;
     }
 
-    .win-icon { width: 20px; height: 20px; }
-    .win-title { flex: 1; color: white; font-size: 12px; font-weight: bold; }
-    .win-buttons { display: flex; gap: 3px; }
+    .win-icon { width: 18px; height: 18px; flex-shrink: 0; }
+    .win-title { flex: 1; color: white; font-size: 11px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .win-buttons { display: flex; gap: 2px; flex-shrink: 0; }
 
     .win-btn {
       width: 22px;
@@ -297,13 +321,14 @@
       flex: 1;
       overflow: auto;
       background: white;
+      -webkit-overflow-scrolling: touch;
     }
 
     .file-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
-      padding: 10px;
+      gap: 12px;
+      padding: 8px;
       align-content: flex-start;
     }
 
@@ -311,18 +336,19 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 70px;
-      padding: 6px;
+      width: 60px;
+      padding: 6px 4px;
       border-radius: 4px;
       cursor: pointer;
       text-align: center;
     }
 
     .file-icon:hover, .folder-icon:hover { background: #e8f0fc; }
-    .file-icon.selected, .folder-icon.selected { background: #3168d5; color: white; }
-    .file-icon svg, .folder-icon svg { width: 32px; height: 32px; margin-bottom: 4px; }
-    .file-icon span, .folder-icon span { font-size: 10px; word-break: break-word; line-height: 1.2; }
+    .file-icon:active, .folder-icon:active { background: #3168d5; color: white; }
+    .file-icon svg, .folder-icon svg { width: 28px; height: 28px; margin-bottom: 3px; }
+    .file-icon span, .folder-icon span { font-size: 9px; word-break: break-word; line-height: 1.2; }
 
+    /* Image viewer */
     .image-viewer .window-content {
       background: #1a1a2e;
       display: flex;
@@ -330,6 +356,7 @@
       justify-content: center;
       position: relative;
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .image-viewer img, .image-viewer canvas {
@@ -344,37 +371,37 @@
       border: none;
     }
 
-    .image-viewer .loading { color: white; font-size: 14px; }
+    .image-viewer .loading { color: white; font-size: 13px; }
 
     .image-viewer .viewer-info {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
+      bottom: 6px;
+      left: 6px;
       color: rgba(255,255,255,0.7);
-      font-size: 11px;
+      font-size: 10px;
       background: rgba(0,0,0,0.5);
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
       z-index: 10;
     }
 
     .image-viewer .viewer-actions {
       position: absolute;
-      bottom: 8px;
-      right: 8px;
+      bottom: 6px;
+      right: 6px;
       display: flex;
-      gap: 6px;
+      gap: 4px;
       z-index: 10;
     }
 
     .viewer-actions button, .viewer-actions a {
-      padding: 6px 12px;
+      padding: 5px 10px;
       background: rgba(49, 104, 213, 0.8);
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 10px;
       text-decoration: none;
     }
 
@@ -382,6 +409,7 @@
       background: rgba(49, 104, 213, 1);
     }
 
+    /* Text viewer */
     .text-viewer .window-content {
       background: #1e1e2e;
       padding: 0;
@@ -390,11 +418,11 @@
 
     .text-viewer pre {
       margin: 0;
-      padding: 16px;
+      padding: 12px;
       color: #cdd6f4;
       font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 11px;
+      line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
       background: #1e1e2e;
@@ -410,16 +438,17 @@
 
     .text-viewer .viewer-info {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
+      bottom: 6px;
+      left: 6px;
       color: rgba(205, 214, 244, 0.7);
-      font-size: 11px;
+      font-size: 10px;
       background: rgba(0,0,0,0.5);
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
       z-index: 10;
     }
 
+    /* Context Menu */
     #contextMenu {
       position: fixed;
       background: #f0f4fc;
@@ -427,12 +456,12 @@
       box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
       z-index: 20000;
       display: none;
-      min-width: 180px;
+      min-width: 160px;
       padding: 2px 0;
     }
 
     #contextMenu .menu-item {
-      padding: 6px 20px;
+      padding: 8px 16px;
       font-size: 12px;
       cursor: pointer;
       display: flex;
@@ -444,22 +473,22 @@
     #contextMenu .separator { height: 1px; background: #ccc; margin: 2px 6px; }
 
     .window-footer {
-      padding: 6px 10px;
+      padding: 4px 8px;
       background: #f0f4fc;
       border-top: 1px solid #ddd;
-      font-size: 11px;
+      font-size: 10px;
       color: #666;
     }
 
     .window-breadcrumb {
-      padding: 6px 10px;
+      padding: 4px 8px;
       background: #f0f4fc;
       border-bottom: 1px solid #ddd;
-      font-size: 11px;
+      font-size: 10px;
       color: #3168d5;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       flex-wrap: wrap;
     }
 
@@ -468,17 +497,17 @@
     .window-breadcrumb .separator { color: #999; }
 
     .info-content {
-      padding: 20px;
+      padding: 16px;
       text-align: center;
     }
 
-    .info-content .big-icon { font-size: 48px; margin-bottom: 16px; }
-    .info-content h3 { margin-bottom: 12px; }
-    .info-content p { color: #666; margin: 4px 0; }
+    .info-content .big-icon { font-size: 40px; margin-bottom: 12px; }
+    .info-content h3 { margin-bottom: 8px; font-size: 14px; }
+    .info-content p { color: #666; margin: 3px 0; font-size: 11px; }
 
     .info-content button, .info-content a {
-      margin-top: 12px;
-      padding: 8px 16px;
+      margin-top: 10px;
+      padding: 7px 14px;
       background: #3168d5;
       color: white;
       border: none;
@@ -486,11 +515,198 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      font-size: 11px;
+    }
+
+        /* Browser window */
+    .browser-window .window-content {
+      background: #fff;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .browser-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: linear-gradient(to bottom, #f8f9fc, #e8ecf4);
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+
+    .browser-nav-btns {
+      display: flex;
+      gap: 2px;
+    }
+
+    .browser-nav-btn {
+      width: 26px;
+      height: 24px;
+      border: 1px solid #ccc;
+      background: linear-gradient(to bottom, #fff, #e8e8e8);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+    }
+
+    .browser-nav-btn:hover { background: #e0e8f0; }
+    .browser-nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .browser-address-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      padding: 0 8px;
+      height: 26px;
+      gap: 6px;
+    }
+
+    .browser-address-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .browser-address-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 11px;
+      font-family: 'Tahoma', sans-serif;
+      color: #333;
+      background: transparent;
+      min-width: 0;
+    }
+
+    .browser-go-btn {
+      padding: 3px 10px;
+      background: linear-gradient(to bottom, #6dad3b, #4c8c2a);
+      color: white;
+      border: 1px solid #3a7a1f;
+      border-radius: 3px;
+      font-size: 11px;
+      cursor: pointer;
+      height: 24px;
+    }
+
+    .browser-go-btn:hover { background: #5c9c3a; }
+
+    .browser-content-iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: white;
     }
 
     .info-content button:hover, .info-content a:hover { background: #2156c4; }
-    .info-content .download-btn { background: #3c8c3c; margin-left: 8px; }
+    .info-content .download-btn { background: #3c8c3c; margin-left: 6px; }
     .info-content .download-btn:hover { background: #2d6e2d; }
+
+    /* Mobile specific */
+    @media (max-width: 768px) {
+      #desktop {
+        padding: 10px;
+        gap: 8px;
+        height: calc(100% - 40px);
+      }
+
+      .desktop-icon {
+        width: 60px;
+        padding: 6px 3px;
+      }
+
+      .desktop-icon svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .desktop-icon span {
+        font-size: 9px;
+        max-width: 56px;
+      }
+
+      #desktop-footer {
+        bottom: 44px;
+        right: 8px;
+        gap: 2px;
+      }
+
+      #desktop-footer .credit {
+        font-size: 9px;
+      }
+
+      .window {
+        min-width: 100vw !important;
+        min-height: 50vh !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        left: 0 !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+      }
+
+      .window-header {
+        border-radius: 0 !important;
+      }
+
+      #startMenu {
+        width: 100vw;
+        max-width: 100vw;
+        left: 0;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .taskbar-window {
+        min-width: 60px;
+        padding: 4px 6px;
+        font-size: 10px;
+      }
+
+      #taskbar-clock {
+        font-size: 10px;
+        padding: 0 6px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .desktop-icon {
+        width: 52px;
+        padding: 4px 2px;
+      }
+
+      .desktop-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .desktop-icon span {
+        font-size: 8px;
+        max-width: 48px;
+      }
+
+      .file-icon, .folder-icon {
+        width: 50px;
+      }
+
+      .file-icon svg, .folder-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .file-icon span, .folder-icon span {
+        font-size: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -501,47 +717,47 @@
 
   <div id="desktop">
     
-    <div class="desktop-icon" data-folder="imagens" ondblclick="openFolder('imagens')">
+    <div class="desktop-icon" data-folder="imagens" ondblclick="openFolder('imagens')" ontouchend="handleTouchIcon(this, 'imagens', 'folder')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
       </svg>
       <span>imagens</span>
     </div>
-    <div class="desktop-icon" data-folder="json" ondblclick="openFolder('json')">
+    <div class="desktop-icon" data-folder="json" ondblclick="openFolder('json')" ontouchend="handleTouchIcon(this, 'json', 'folder')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
       </svg>
       <span>json</span>
     </div>
-    <div class="desktop-icon" data-folder="mapas" ondblclick="openFolder('mapas')">
+    <div class="desktop-icon" data-folder="mapas" ondblclick="openFolder('mapas')" ontouchend="handleTouchIcon(this, 'mapas', 'folder')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
       </svg>
       <span>mapas</span>
     </div>
-    <div class="desktop-icon" data-folder="predios" ondblclick="openFolder('predios')">
+    <div class="desktop-icon" data-folder="predios" ondblclick="openFolder('predios')" ontouchend="handleTouchIcon(this, 'predios', 'folder')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
       </svg>
       <span>predios</span>
     </div>
-    <div class="desktop-icon" data-folder="raster" ondblclick="openFolder('raster')">
+    <div class="desktop-icon" data-folder="raster" ondblclick="openFolder('raster')" ontouchend="handleTouchIcon(this, 'raster', 'folder')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
       </svg>
       <span>raster</span>
     </div>
-    <div class="desktop-icon" data-file="Não Abrir.gif" ondblclick="openFile('Não Abrir.gif')">
+    <div class="desktop-icon" data-file="Não Abrir.gif" ondblclick="openFile('Não Abrir.gif')" ontouchend="handleTouchIcon(this, 'Não Abrir.gif', 'file')">
       <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>
       <span>Não Abrir.gif</span>
     </div>
-    <div class="desktop-icon" data-file="Não Ler.txt" ondblclick="openFile('Não Ler.txt')">
+    <div class="desktop-icon" data-file="Não Ler.txt" ondblclick="openFile('Não Ler.txt')" ontouchend="handleTouchIcon(this, 'Não Ler.txt', 'file')">
       <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>
       <span>Não Ler.txt</span>
     </div>
     
     <div id="desktop-footer">
-      <span class="credit" style="font-weight:bold;margin-bottom:4px;">Assets Mapa Imbé</span>
+      <span class="credit" style="font-weight:bold;margin-bottom:2px;">Assets Mapa Imbé</span>
       <a class="credit" href="https://github.com/MagalhaesVini" target="_blank">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
         MagalhaesVini
@@ -594,7 +810,7 @@
         raster
       </div>
       <div class="separator"></div>
-      <div class="start-menu-item" onclick="toggleStart()">
+      <div class="start-menu-item" onclick="openBrowserWindow('/sobre.html', 'Sobre - Assets Mapa Imbé'); toggleStart();">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Sobre
       </div>
@@ -612,10 +828,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
   <script>
-    var FOLDER_STRUCTURE = [{"type":"file","name":"background.gif","path":"background.gif","size":111299,"ext":".gif"},{"type":"file","name":"boot.gif","path":"boot.gif","size":127322,"ext":".gif"},{"type":"file","name":"generate-index.js","path":"generate-index.js","size":44609,"ext":".js"},{"type":"folder","name":"imagens","path":"imagens","children":[{"type":"file","name":"centro.jpg","path":"imagens/centro.jpg","size":302769,"ext":".jpg"},{"type":"file","name":"portico.jpg","path":"imagens/portico.jpg","size":7262208,"ext":".jpg"}]},{"type":"file","name":"index.html","path":"index.html","size":44842,"ext":".html"},{"type":"folder","name":"json","path":"json","children":[{"type":"file","name":"ACS_2024.json","path":"json/ACS_2024.json","size":151197,"ext":".json"},{"type":"file","name":"ACS_2026.geojson","path":"json/ACS_2026.geojson","size":48188,"ext":".geojson"},{"type":"file","name":"logradouros_2026-06-25.geojson","path":"json/logradouros_2026-06-25.geojson","size":1486272,"ext":".geojson"},{"type":"file","name":"malhamunicipal.geojson","path":"json/malhamunicipal.geojson","size":5992,"ext":".geojson"}]},{"type":"file","name":"logo512.png","path":"logo512.png","size":267160,"ext":".png"},{"type":"folder","name":"mapas","path":"mapas","children":[{"type":"file","name":"IBGE Colorido Bairro 2014.pdf","path":"mapas/IBGE Colorido Bairro 2014.pdf","size":2938498,"ext":".pdf"},{"type":"file","name":"Imbé Junho 2025.pdf","path":"mapas/Imbé Junho 2025.pdf","size":1905671,"ext":".pdf"},{"type":"file","name":"Nordeste 36.pdf","path":"mapas/Nordeste 36.pdf","size":249812,"ext":".pdf"},{"type":"file","name":"Nova Nordeste 38.pdf","path":"mapas/Nova Nordeste 38.pdf","size":118944,"ext":".pdf"},{"type":"file","name":"Santa Terezinha 5, 6 e 7.pdf","path":"mapas/Santa Terezinha 5, 6 e 7.pdf","size":177546,"ext":".pdf"}]},{"type":"file","name":"netlify.toml","path":"netlify.toml","size":84,"ext":".toml"},{"type":"file","name":"Não Abrir.gif","path":"Não Abrir.gif","size":32937017,"ext":".gif"},{"type":"file","name":"Não Ler.txt","path":"Não Ler.txt","size":891,"ext":".txt"},{"type":"folder","name":"predios","path":"predios","children":[{"type":"folder","name":"Academia da Saúde","path":"predios/Academia da Saúde","children":[{"type":"file","name":"DJI_20260122165023_0008_D.JPG","path":"predios/Academia da Saúde/DJI_20260122165023_0008_D.JPG","size":7901184,"ext":".jpg"}]},{"type":"folder","name":"Braço Morto","path":"predios/Braço Morto","children":[{"type":"file","name":"DJI_20260126110556_0035_D.JPG","path":"predios/Braço Morto/DJI_20260126110556_0035_D.JPG","size":7659520,"ext":".jpg"},{"type":"file","name":"DJI_20260126110623_0036_D.JPG","path":"predios/Braço Morto/DJI_20260126110623_0036_D.JPG","size":7847936,"ext":".jpg"}]},{"type":"folder","name":"Capeb II","path":"predios/Capeb II","children":[{"type":"file","name":"DJI-20260204113731-0167-D.jpg","path":"predios/Capeb II/DJI-20260204113731-0167-D.jpg","size":7925760,"ext":".jpg"},{"type":"file","name":"DJI-20260204113801-0168-D.jpg","path":"predios/Capeb II/DJI-20260204113801-0168-D.jpg","size":8093696,"ext":".jpg"}]},{"type":"folder","name":"Lago do Jacaré","path":"predios/Lago do Jacaré","children":[{"type":"file","name":"DJI_20260202103715_0061_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103715_0061_D.JPG","size":8687616,"ext":".jpg"},{"type":"file","name":"DJI_20260202103956_0066_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103956_0066_D.JPG","size":8589312,"ext":".jpg"},{"type":"file","name":"DJI_20260202104426_0068_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202104426_0068_D.JPG","size":8355840,"ext":".jpg"}]},{"type":"folder","name":"Praça das Orações","path":"predios/Praça das Orações","children":[{"type":"file","name":"1778077365798-pracadaoracao.jpg","path":"predios/Praça das Orações/1778077365798-pracadaoracao.jpg","size":4567000,"ext":".jpg"},{"type":"file","name":"1778077368772-pracadaoracao2.jpg","path":"predios/Praça das Orações/1778077368772-pracadaoracao2.jpg","size":4455681,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 12h","path":"predios/Pronto Atendimento 12h","children":[{"type":"file","name":"DJI-20260325151041-0063-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151041-0063-D-BEIRAMAR.jpg","size":6897664,"ext":".jpg"},{"type":"file","name":"DJI-20260325151222-0066-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151222-0066-D-BEIRAMAR.jpg","size":7766016,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 24h","path":"predios/Pronto Atendimento 24h","children":[{"type":"file","name":"DJI_20260212163730_0015_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163730_0015_D_BEIRAMAR.JPG","size":7626752,"ext":".jpg"},{"type":"file","name":"DJI_20260212163914_0020_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163914_0020_D_BEIRAMAR.JPG","size":7548928,"ext":".jpg"}]},{"type":"folder","name":"USF Albatroz","path":"predios/USF Albatroz","children":[{"type":"file","name":"usfalbatroz.jpg","path":"predios/USF Albatroz/usfalbatroz.jpg","size":6709248,"ext":".jpg"}]}]},{"type":"folder","name":"raster","path":"raster","children":[{"type":"file","name":"imbecadgeo.tiff","path":"raster/imbecadgeo.tiff","size":825867375,"ext":".tiff"},{"type":"file","name":"OlavoBilac.tif","path":"raster/OlavoBilac.tif","size":47433339,"ext":".tif"}]},{"type":"file","name":"README.md","path":"README.md","size":2004,"ext":".md"}];
+    var FOLDER_STRUCTURE = [{"type":"file","name":"background.gif","path":"background.gif","size":111299,"ext":".gif"},{"type":"file","name":"boot.gif","path":"boot.gif","size":127322,"ext":".gif"},{"type":"file","name":"generate-index.js","path":"generate-index.js","size":56606,"ext":".js"},{"type":"folder","name":"imagens","path":"imagens","children":[{"type":"file","name":"centro.jpg","path":"imagens/centro.jpg","size":302769,"ext":".jpg"},{"type":"file","name":"portico.jpg","path":"imagens/portico.jpg","size":7262208,"ext":".jpg"}]},{"type":"file","name":"index.html","path":"index.html","size":57255,"ext":".html"},{"type":"folder","name":"json","path":"json","children":[{"type":"file","name":"ACS_2024.json","path":"json/ACS_2024.json","size":151197,"ext":".json"},{"type":"file","name":"ACS_2026.geojson","path":"json/ACS_2026.geojson","size":48188,"ext":".geojson"},{"type":"file","name":"logradouros_2026-06-25.geojson","path":"json/logradouros_2026-06-25.geojson","size":1486272,"ext":".geojson"},{"type":"file","name":"malhamunicipal.geojson","path":"json/malhamunicipal.geojson","size":5992,"ext":".geojson"}]},{"type":"file","name":"logo512.png","path":"logo512.png","size":267160,"ext":".png"},{"type":"folder","name":"mapas","path":"mapas","children":[{"type":"file","name":"IBGE Colorido Bairro 2014.pdf","path":"mapas/IBGE Colorido Bairro 2014.pdf","size":2938498,"ext":".pdf"},{"type":"file","name":"Imbé Junho 2025.pdf","path":"mapas/Imbé Junho 2025.pdf","size":1905671,"ext":".pdf"},{"type":"file","name":"Nordeste 36.pdf","path":"mapas/Nordeste 36.pdf","size":249812,"ext":".pdf"},{"type":"file","name":"Nova Nordeste 38.pdf","path":"mapas/Nova Nordeste 38.pdf","size":118944,"ext":".pdf"},{"type":"file","name":"Santa Terezinha 5, 6 e 7.pdf","path":"mapas/Santa Terezinha 5, 6 e 7.pdf","size":177546,"ext":".pdf"}]},{"type":"file","name":"netlify.toml","path":"netlify.toml","size":84,"ext":".toml"},{"type":"file","name":"Não Abrir.gif","path":"Não Abrir.gif","size":32937017,"ext":".gif"},{"type":"file","name":"Não Ler.txt","path":"Não Ler.txt","size":891,"ext":".txt"},{"type":"folder","name":"predios","path":"predios","children":[{"type":"folder","name":"Academia da Saúde","path":"predios/Academia da Saúde","children":[{"type":"file","name":"DJI_20260122165023_0008_D.JPG","path":"predios/Academia da Saúde/DJI_20260122165023_0008_D.JPG","size":7901184,"ext":".jpg"}]},{"type":"folder","name":"Braço Morto","path":"predios/Braço Morto","children":[{"type":"file","name":"DJI_20260126110556_0035_D.JPG","path":"predios/Braço Morto/DJI_20260126110556_0035_D.JPG","size":7659520,"ext":".jpg"},{"type":"file","name":"DJI_20260126110623_0036_D.JPG","path":"predios/Braço Morto/DJI_20260126110623_0036_D.JPG","size":7847936,"ext":".jpg"}]},{"type":"folder","name":"Capeb II","path":"predios/Capeb II","children":[{"type":"file","name":"DJI-20260204113731-0167-D.jpg","path":"predios/Capeb II/DJI-20260204113731-0167-D.jpg","size":7925760,"ext":".jpg"},{"type":"file","name":"DJI-20260204113801-0168-D.jpg","path":"predios/Capeb II/DJI-20260204113801-0168-D.jpg","size":8093696,"ext":".jpg"}]},{"type":"folder","name":"Lago do Jacaré","path":"predios/Lago do Jacaré","children":[{"type":"file","name":"DJI_20260202103715_0061_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103715_0061_D.JPG","size":8687616,"ext":".jpg"},{"type":"file","name":"DJI_20260202103956_0066_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103956_0066_D.JPG","size":8589312,"ext":".jpg"},{"type":"file","name":"DJI_20260202104426_0068_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202104426_0068_D.JPG","size":8355840,"ext":".jpg"}]},{"type":"folder","name":"Praça das Orações","path":"predios/Praça das Orações","children":[{"type":"file","name":"1778077365798-pracadaoracao.jpg","path":"predios/Praça das Orações/1778077365798-pracadaoracao.jpg","size":4567000,"ext":".jpg"},{"type":"file","name":"1778077368772-pracadaoracao2.jpg","path":"predios/Praça das Orações/1778077368772-pracadaoracao2.jpg","size":4455681,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 12h","path":"predios/Pronto Atendimento 12h","children":[{"type":"file","name":"DJI-20260325151041-0063-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151041-0063-D-BEIRAMAR.jpg","size":6897664,"ext":".jpg"},{"type":"file","name":"DJI-20260325151222-0066-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151222-0066-D-BEIRAMAR.jpg","size":7766016,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 24h","path":"predios/Pronto Atendimento 24h","children":[{"type":"file","name":"DJI_20260212163730_0015_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163730_0015_D_BEIRAMAR.JPG","size":7626752,"ext":".jpg"},{"type":"file","name":"DJI_20260212163914_0020_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163914_0020_D_BEIRAMAR.JPG","size":7548928,"ext":".jpg"}]},{"type":"folder","name":"USF Albatroz","path":"predios/USF Albatroz","children":[{"type":"file","name":"usfalbatroz.jpg","path":"predios/USF Albatroz/usfalbatroz.jpg","size":6709248,"ext":".jpg"}]}]},{"type":"folder","name":"raster","path":"raster","children":[{"type":"file","name":"imbecadgeo.tiff","path":"raster/imbecadgeo.tiff","size":825867375,"ext":".tiff"},{"type":"file","name":"OlavoBilac.tif","path":"raster/OlavoBilac.tif","size":47433339,"ext":".tif"}]},{"type":"file","name":"README.md","path":"README.md","size":2004,"ext":".md"},{"type":"file","name":"sobre.html","path":"sobre.html","size":4004,"ext":".html"}];
     var windowZIndex = 100;
     var activeWindow = null;
     var dragData = null;
+    var isMobile = window.innerWidth <= 768;
+    var touchTimeout = null;
 
     // Boot sequence
     window.addEventListener('DOMContentLoaded', function() {
@@ -627,8 +845,27 @@
         setTimeout(function() {
           if (bootScreen.parentNode) bootScreen.parentNode.removeChild(bootScreen);
         }, 300);
-      }, 4000);
+      }, 5000);
     });
+
+    // Touch handler for mobile double-tap
+    function handleTouchIcon(el, path, type) {
+      if (!isMobile) return;
+      
+      if (touchTimeout) {
+        clearTimeout(touchTimeout);
+        touchTimeout = null;
+        if (type === 'folder') {
+          openFolder(path);
+        } else {
+          openFile(path);
+        }
+      } else {
+        touchTimeout = setTimeout(function() {
+          touchTimeout = null;
+        }, 300);
+      }
+    }
 
     function getFileType(ext) {
       if (!ext) return 'other';
@@ -682,7 +919,7 @@
       e.preventDefault();
       var menu = document.getElementById('contextMenu');
       menu.style.display = 'block';
-      menu.style.left = e.clientX + 'px';
+      menu.style.left = Math.min(e.clientX, window.innerWidth - 170) + 'px';
       menu.style.top = e.clientY + 'px';
     });
 
@@ -723,13 +960,24 @@
       if (isImageViewer) windowEl.classList.add('image-viewer');
       if (isTextViewer) windowEl.classList.add('text-viewer');
       windowEl.id = id;
-      windowEl.style.left = (100 + Math.random() * 100) + 'px';
-      windowEl.style.top = (60 + Math.random() * 60) + 'px';
-      windowEl.style.width = options.width || '500px';
-      windowEl.style.height = options.height || '400px';
+      
+      if (isMobile) {
+        windowEl.style.left = '0';
+        windowEl.style.top = '0';
+        windowEl.style.width = '100vw';
+        windowEl.style.height = 'calc(100vh - 40px)';
+        windowEl.style.minWidth = '100vw';
+        windowEl.style.minHeight = '50vh';
+        windowEl.style.resize = 'none';
+      } else {
+        windowEl.style.left = (100 + Math.random() * 100) + 'px';
+        windowEl.style.top = (60 + Math.random() * 60) + 'px';
+        windowEl.style.width = options.width || '500px';
+        windowEl.style.height = options.height || '400px';
+      }
       windowEl.style.zIndex = ++windowZIndex;
       
-      windowEl.innerHTML = '<div class="window-header" onmousedown="startDrag(event, \'' + id + '\')">' +
+      windowEl.innerHTML = '<div class="window-header" onmousedown="startDrag(event, \'' + id + '\')" ontouchstart="startDragTouch(event, \'' + id + '\')">' +
         '<svg class="win-icon" viewBox="0 0 24 24" fill="#f5c842"><path d="M3 5h6l2 2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>' +
         '<span class="win-title">' + title + '</span>' +
         '<div class="win-buttons">' +
@@ -784,6 +1032,7 @@
     }
 
     function maximizeWindow(id) {
+      if (isMobile) return;
       var win = document.getElementById(id);
       if (!win) return;
       if (win.style.width === '100%') {
@@ -808,14 +1057,26 @@
     }
 
     function startDrag(e, id) {
+      if (isMobile) return;
       var win = document.getElementById(id);
       if (!win) return;
+      e.preventDefault();
       dragData = { id: id, startX: e.clientX, startY: e.clientY, startLeft: win.offsetLeft, startTop: win.offsetTop };
       focusWindow(id);
     }
 
+    function startDragTouch(e, id) {
+      if (!isMobile) return;
+      var win = document.getElementById(id);
+      if (!win) return;
+      if (e.touches.length === 1) {
+        dragData = { id: id, startX: e.touches[0].clientX, startY: e.touches[0].clientY, startLeft: win.offsetLeft, startTop: win.offsetTop };
+        focusWindow(id);
+      }
+    }
+
     document.addEventListener('mousemove', function(e) {
-      if (!dragData) return;
+      if (!dragData || isMobile) return;
       var win = document.getElementById(dragData.id);
       if (!win) return;
       var dx = e.clientX - dragData.startX;
@@ -824,7 +1085,18 @@
       win.style.top = (dragData.startTop + dy) + 'px';
     });
 
+    document.addEventListener('touchmove', function(e) {
+      if (!dragData || !isMobile) return;
+      var win = document.getElementById(dragData.id);
+      if (!win) return;
+      var dx = e.touches[0].clientX - dragData.startX;
+      var dy = e.touches[0].clientY - dragData.startY;
+      win.style.left = (dragData.startLeft + dx) + 'px';
+      win.style.top = (dragData.startTop + dy) + 'px';
+    }, { passive: true });
+
     document.addEventListener('mouseup', function() { dragData = null; });
+    document.addEventListener('touchend', function() { dragData = null; });
 
     document.addEventListener('mousedown', function(e) {
       var win = e.target.closest('.window');
@@ -847,7 +1119,8 @@
             child.name !== 'netlify.toml' && child.name !== 'README.md' && 
             child.name !== 'logo512.png' && child.name !== 'background.gif' &&
             child.name !== 'background.jpg' && child.name !== 'background.png' &&
-            child.name !== 'boot.gif' && child.name !== 'boot.png' && child.name !== 'boot.jpg') {
+            child.name !== 'boot.gif' && child.name !== 'boot.png' && child.name !== 'boot.jpg' &&
+            child.name !== 'sobre.html') {
           files.push(child);
         } else if (child.type === 'folder') {
           subfolders.push(child);
@@ -867,7 +1140,7 @@
 
       for (var s = 0; s < subfolders.length; s++) {
         var sub = subfolders[s];
-        iconsHTML += '<div class="folder-icon" ondblclick="openFolder(\'' + sub.path + '\')">' +
+        iconsHTML += '<div class="folder-icon" ondblclick="openFolder(\'' + sub.path + '\')" ontouchend="handleTouchFolder(this, \'' + sub.path + '\')">' +
           '<svg viewBox="0 0 48 48" fill="none"><path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/></svg>' +
           '<span>' + sub.name + '</span></div>';
       }
@@ -876,7 +1149,7 @@
         var file = files[f];
         var ext = file.ext ? file.ext.toLowerCase() : '';
         var type = getFileType(ext);
-        iconsHTML += '<div class="file-icon" ondblclick="openFile(\'' + file.path + '\')" title="' + file.name + ' - ' + formatSize(file.size || 0) + '">' +
+        iconsHTML += '<div class="file-icon" ondblclick="openFile(\'' + file.path + '\')" ontouchend="handleTouchFile(this, \'' + file.path + '\')" title="' + file.name + ' - ' + formatSize(file.size || 0) + '">' +
           getFileIconSVG(type) + '<span>' + file.name + '</span></div>';
       }
 
@@ -885,6 +1158,29 @@
         '<div class="window-footer">' + subfolders.length + ' pasta(s) | ' + files.length + ' arquivo(s)</div>';
 
       createWindow(folder.name || folderPath, content, { width: '600px', height: '450px' });
+    }
+
+    // Touch handlers for folder contents
+    var folderTouchTimeout = null;
+    function handleTouchFolder(el, path) {
+      if (folderTouchTimeout) {
+        clearTimeout(folderTouchTimeout);
+        folderTouchTimeout = null;
+        openFolder(path);
+      } else {
+        folderTouchTimeout = setTimeout(function() { folderTouchTimeout = null; }, 300);
+      }
+    }
+
+    var fileTouchTimeout = null;
+    function handleTouchFile(el, path) {
+      if (fileTouchTimeout) {
+        clearTimeout(fileTouchTimeout);
+        fileTouchTimeout = null;
+        openFile(path);
+      } else {
+        fileTouchTimeout = setTimeout(function() { fileTouchTimeout = null; }, 300);
+      }
     }
 
     function renderTIFF(url, containerId) {
@@ -898,7 +1194,8 @@
         .then(function(tiff) { return tiff.getImage(); })
         .then(function(image) {
           var w = image.getWidth(), h = image.getHeight();
-          var maxDim = 2000, scale = 1;
+          var maxDim = isMobile ? 1200 : 2000;
+          var scale = 1;
           if (w > maxDim || h > maxDim) scale = maxDim / Math.max(w, h);
           
           var canvas = document.createElement('canvas');
@@ -1043,11 +1340,76 @@
       }
     }
 
+
+    function openBrowserWindow(url, title) {
+      var id = 'browser_' + Date.now();
+      
+      var windowEl = document.createElement('div');
+      windowEl.className = 'window active browser-window';
+      windowEl.id = id;
+      
+      if (isMobile) {
+        windowEl.style.left = '0';
+        windowEl.style.top = '0';
+        windowEl.style.width = '100vw';
+        windowEl.style.height = 'calc(100vh - 40px)';
+        windowEl.style.minWidth = '100vw';
+        windowEl.style.resize = 'none';
+      } else {
+        windowEl.style.left = (80 + Math.random() * 80) + 'px';
+        windowEl.style.top = (40 + Math.random() * 40) + 'px';
+        windowEl.style.width = '650px';
+        windowEl.style.height = '500px';
+      }
+      windowEl.style.zIndex = ++windowZIndex;
+      
+      windowEl.innerHTML = '<div class="window-header" onmousedown="startDrag(event, \'' + id + '\')" ontouchstart="startDragTouch(event, \'' + id + '\')">' +
+        '<svg class="win-icon" viewBox="0 0 24 24" fill="#3b82f6"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><path d="M4 12l4-8 4 8-4 8zM12 12l4-8 4 8-4 8z" fill="white"/></svg>' +
+        '<span class="win-title">' + (title || 'Internet Explorer') + '</span>' +
+        '<div class="win-buttons">' +
+          '<button class="win-btn win-minimize" onclick="minimizeWindow(\'' + id + '\')">_</button>' +
+          '<button class="win-btn win-maximize" onclick="maximizeWindow(\'' + id + '\')">□</button>' +
+          '<button class="win-btn win-close" onclick="closeWindow(\'' + id + '\')">×</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="window-content" style="padding:0;display:flex;flex-direction:column;">' +
+        '<div class="browser-toolbar">' +
+          '<div class="browser-nav-btns">' +
+            '<button class="browser-nav-btn" disabled><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+            '<button class="browser-nav-btn" disabled><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+          '</div>' +
+          '<div class="browser-address-bar">' +
+            '<svg class="browser-address-icon" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' +
+            '<input class="browser-address-input" value="' + url + '" readonly onclick="this.select()">' +
+          '</div>' +
+          '<button class="browser-go-btn" onclick="this.parentElement.parentElement.querySelector(\'.browser-content-iframe\').src = this.parentElement.querySelector(\'.browser-address-input\').value">Ir</button>' +
+        '</div>' +
+        '<iframe class="browser-content-iframe" src="' + url + '"></iframe>' +
+      '</div>';
+
+      document.getElementById('windowContainer').appendChild(windowEl);
+      
+      var taskbarBtn = document.createElement('div');
+      taskbarBtn.className = 'taskbar-window active';
+      taskbarBtn.id = 'tb_' + id;
+      taskbarBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="#3b82f6"><circle cx="12" cy="12" r="10"/><path d="M4 12l4-8 4 8-4 8zM12 12l4-8 4 8-4 8z" fill="white"/></svg> ' + (title || 'Internet Explorer');
+      taskbarBtn.onclick = function() { toggleWindow(id); };
+      document.getElementById('taskbar-windows').appendChild(taskbarBtn);
+
+      focusWindow(id);
+      return id;
+    }
+
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(function() {
         alert('URL copiada: ' + text);
       });
     }
+
+    // Handle resize
+    window.addEventListener('resize', function() {
+      isMobile = window.innerWidth <= 768;
+    });
   </script>
 </body>
 </html>

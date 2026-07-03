@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Sobre · Assets Mapa Imbé</title>
+  <!-- Fontes premium + ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0b1424;
+      --bg-card: rgba(18, 28, 52, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-highlight: rgba(255, 255, 255, 0.06);
+      --accent-cyan: #22d3ee;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #818cf8;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --shadow-glow: 0 20px 40px -12px rgba(0, 160, 255, 0.25);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --transition-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 30% 10%, #1e293b 0%, #0b1424 85%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Partículas de fundo animadas (efeito vivo) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 30%, rgba(34, 211, 238, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 85% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(129, 140, 248, 0.08) 0%, transparent 35%);
+      pointer-events: none;
+      z-index: 0;
+      animation: ambientPulse 10s infinite alternate ease-in-out;
+    }
+
+    @keyframes ambientPulse {
+      0% {
+        opacity: 0.7;
+        transform: scale(1);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1.03);
+      }
+    }
+
+    .glass-panel {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 680px;
+      background: var(--bg-card);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-glow), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      padding: 2.2rem 2rem 2rem;
+      color: var(--text-primary);
+      transition: transform 0.3s var(--transition-smooth), box-shadow 0.4s;
+      animation: fadeSlideUp 0.7s var(--transition-smooth);
+    }
+
+    .glass-panel:hover {
+      box-shadow: 0 30px 55px -15px rgba(0, 180, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    }
+
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header com logo e status */
+    .premium-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      margin-bottom: 1.2rem;
+    }
+
+    .logo-glow {
+      width: 80px;
+      height: 80px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      transition: all 0.3s;
+    }
+
+    .logo-glow img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+    }
+
+    .online-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      border: 2px solid #0b1424;
+      letter-spacing: 0.4px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    .app-title {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #e0f2fe, #bae6fd, #7dd3fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+      margin: 0.2rem 0 0.1rem;
+    }
+
+    .version-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 1.1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #b9c7e0;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .version-chip i {
+      color: #22d3ee;
+      font-size: 0.7rem;
+    }
+
+    /* Seções com ícones e tipografia refinada */
+    .section {
+      margin-bottom: 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: background 0.3s;
+    }
+
+    .section:hover {
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-header i {
+      font-size: 1.3rem;
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.12);
+      padding: 0.45rem;
+      border-radius: 12px;
+      width: 2.5rem;
+      text-align: center;
+    }
+
+    .section-header h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: #e2e8f0;
+    }
+
+    .description {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+      margin-bottom: 0.5rem;
+    }
+
+    .format-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.7rem;
+    }
+
+    .format-badge {
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 30px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #b9e0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      backdrop-filter: blur(4px);
+      transition: all 0.25s;
+    }
+
+    .format-badge i {
+      color: #22d3ee;
+      font-size: 0.8rem;
+    }
+
+    .format-badge:hover {
+      background: rgba(34, 211, 238, 0.18);
+      border-color: rgba(34, 211, 238, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .tech-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .tech-badge {
+      background: rgba(129, 140, 248, 0.1);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      color: #c7d2fe;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.2px;
+      transition: 0.2s;
+    }
+
+    .tech-badge:hover {
+      background: #818cf822;
+      border-color: #a5b4fc;
+    }
+
+    .developer-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 18px;
+      padding: 1rem 1.2rem;
+      margin-top: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .dev-avatar {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: white;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+    }
+
+    .dev-info p {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .dev-info span {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      display: block;
+    }
+
+    .footer-premium {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.5rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1.2rem;
+      font-size: 1.2rem;
+    }
+
+    .social-links a {
+      color: #94a3b8;
+      transition: all 0.25s;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.5rem;
+      border-radius: 12px;
+      display: flex;
+    }
+
+    .social-links a:hover {
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.12);
+      transform: translateY(-3px);
+    }
+
+    .copyright {
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    #currentYear {
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    /* Animação de loading sutil */
+    @media (max-width: 500px) {
+      .glass-panel {
+        padding: 1.5rem;
+      }
+
+      .app-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glass-panel">
+
+    <!-- Header dinâmico -->
+    <div class="premium-header">
+      <div class="logo-wrapper">
+        <div class="logo-glow">
+          <!-- Fallback elegante caso imagem não carregue -->
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e293b'/%3E%3Cpath d='M30 70 L50 25 L70 70' stroke='%2322d3ee' stroke-width='6' fill='none'/%3E%3Ccircle cx='50' cy='55' r='8' fill='%2322d3ee'/%3E%3C/svg%3E"
+            alt="Mapa Imbé Logo"
+            onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231e293b%22/%3E%3Ctext x=%2250%22 y=%2265%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22%2322d3ee%22%3E🌊%3C/text%3E%3C/svg%3E';">
+        </div>
+        <span class="online-badge"><i class="fas fa-map-pin"></i> ativo</span>
+      </div>
+      <h1 class="app-title">Assets Mapa Imbé</h1>
+      <div class="version-chip">
+        <i class="fas fa-code-branch"></i> v1.0.0 · build <span id="dynamicYear"></span>
+      </div>
+    </div>
+
+    <!-- Sobre o sistema -->
+    <div class="section">
+      <div class="section-header">
+        <i class="fas fa-globe-americas"></i>
+        <h2>Sobre o sistema</h2>
+      </div>
+      <p class="description">
+        Interface avançada inspirada no Windows XP para navegação e preview de ativos geoespaciais do município de Imbé,
+        Rio Grande do Sul. Renderização nativa de dados geográficos com performance otimizada.
+      </p>
+    </div>
+
+    <!-- Formatos suportados (dinâmico visual) -->
+    <div class="section">
+      <div class="section-header">
+        <i class="fas fa-file-alt"></i>
+        <h2>Formatos suportados</h2>
+      </div>
+      <div class="format-grid" id="formatContainer">
+        <!-- Preenchido via JS para demonstrar dinamismo -->
+      </div>
+    </div>
+
+    <!-- Tecnologias -->
+    <div class="section">
+      <div class="section-header">
+        <i class="fas fa-microchip"></i>
+        <h2>Tecnologias</h2>
+      </div>
+      <div class="tech-cloud" id="techContainer"></div>
+    </div>
+
+    <!-- Desenvolvedor -->
+    <div class="section">
+      <div class="section-header">
+        <i class="fas fa-user-astronaut"></i>
+        <h2>Desenvolvimento</h2>
+      </div>
+      <div class="developer-card">
+        <div class="dev-avatar">VM</div>
+        <div class="dev-info">
+          <p>Vinícius Magalhães Verdun</p>
+          <span>Setor de Informática · Prefeitura Municipal de Imbé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer com ano automático e links -->
+    <div class="footer-premium">
+      <div class="social-links">
+        <a href="https://github.com/MagalhaesVini" target="_blank" rel="noopener" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="mailto:vinizipi@gmail.com" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/magalhaesvinicius/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </div>
+      <div class="copyright">
+        <i class="far fa-copyright"></i> <span id="currentYearDisplay"></span> Prefeitura Municipal de Imbé/RS
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ---------- ANO AUTOMÁTICO ----------
+      const year = new Date().getFullYear();
+
+      // Atualiza o ano no footer e no build dinâmico
+      const yearSpan = document.getElementById('currentYearDisplay');
+      const dynamicYearSpan = document.getElementById('dynamicYear');
+
+      if (yearSpan) yearSpan.textContent = year;
+      if (dynamicYearSpan) dynamicYearSpan.textContent = year;
+
+      // ---------- LISTA DE FORMATOS (dinâmica) ----------
+      const formats = [
+        { icon: 'fa-solid fa-earth-americas', name: 'GeoTIFF' },
+        { icon: 'fa-regular fa-image', name: 'PNG / JPG' },
+        { icon: 'fa-solid fa-file-pdf', name: 'PDF' },
+        { icon: 'fa-solid fa-code', name: 'JSON / GeoJSON' },
+        { icon: 'fa-solid fa-file-code', name: 'HTML/CSS/JS' },
+        { icon: 'fa-regular fa-file-lines', name: 'TXT / MD' },
+        { icon: 'fa-solid fa-cube', name: 'GIF / WebP' }
+      ];
+
+      const formatContainer = document.getElementById('formatContainer');
+      if (formatContainer) {
+        formatContainer.innerHTML = formats.map(f =>
+          `<span class="format-badge"><i class="${f.icon}"></i> ${f.name}</span>`
+        ).join('');
+      }
+
+      // ---------- TECNOLOGIAS ----------
+      const techs = [
+        'Netlify', 'GeoTIFF.js', 'Vanilla JS', 'CSS3', 'Node.js', 'Leaflet', 'PostGIS'
+      ];
+
+      const techContainer = document.getElementById('techContainer');
+      if (techContainer) {
+        techContainer.innerHTML = techs.map(t =>
+          `<span class="tech-badge">${t}</span>`
+        ).join('');
+      }
+
+      // ---------- TOQUE DE CLASSE: atualiza relógio ao vivo (opcional) ----------
+      console.log(`✨ Assets Mapa Imbé · ${year} · Interface premium carregada.`);
+
+      // Pequeno easter egg: se clicar no avatar do dev, mostra mensagem
+      const devAvatar = document.querySelector('.dev-avatar');
+      if (devAvatar) {
+        devAvatar.addEventListener('click', () => {
+          alert('🌊 Desenvolvido com foco em geotecnologia e design refinado.');
+        });
+        devAvatar.style.cursor = 'pointer';
+      }
+    })();
+  </script>
+</body>
+
+</html>
