@@ -2,113 +2,129 @@ const fs = require('fs');
 const path = require('path');
 
 function scanDirectory(dir, basePath = '') {
-    const items = [];
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const items = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-    for (const entry of entries) {
-        if (entry.name.startsWith('.')) continue;
-        if (entry.name === 'node_modules') continue;
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    if (entry.name === 'node_modules') continue;
 
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+    const fullPath = path.join(dir, entry.name);
+    const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
 
-        if (entry.isDirectory()) {
-            const children = scanDirectory(fullPath, relativePath);
-            items.push({
-                type: 'folder',
-                name: entry.name,
-                path: relativePath,
-                children: children
-            });
-        } else {
-            const stats = fs.statSync(fullPath);
-            const ext = path.extname(entry.name).toLowerCase();
+    if (entry.isDirectory()) {
+      const children = scanDirectory(fullPath, relativePath);
+      items.push({
+        type: 'folder',
+        name: entry.name,
+        path: relativePath,
+        children: children
+      });
+    } else {
+      const stats = fs.statSync(fullPath);
+      const ext = path.extname(entry.name).toLowerCase();
 
-            items.push({
-                type: 'file',
-                name: entry.name,
-                path: relativePath,
-                size: stats.size,
-                ext: ext
-            });
-        }
+      items.push({
+        type: 'file',
+        name: entry.name,
+        path: relativePath,
+        size: stats.size,
+        ext: ext
+      });
     }
+  }
 
-    return items;
+  return items;
 }
 
 function generateAssetsJSON(structure) {
-    const assets = [];
+  const assets = [];
 
-    function flatten(items) {
-        for (const item of items) {
-            if (item.name === 'index.html' || item.name === 'generate-index.js' ||
-                item.name === 'netlify.toml' || item.name === 'README.md' ||
-                item.name === 'logo512.png' || item.name === 'package.json' ||
-                item.name === 'package-lock.json' || item.name === 'background.gif' ||
-                item.name === 'background.jpg' || item.name === 'background.png') continue;
+  function flatten(items) {
+    for (const item of items) {
+      if (item.name === 'index.html' || item.name === 'generate-index.js' ||
+        item.name === 'netlify.toml' || item.name === 'README.md' ||
+        item.name === 'logo512.png' || item.name === 'package.json' ||
+        item.name === 'package-lock.json' || item.name === 'background.gif' ||
+        item.name === 'background.jpg' || item.name === 'background.png' ||
+        item.name === 'boot.gif' || item.name === 'boot.png' || item.name === 'boot.jpg') continue;
 
-            if (item.type === 'file') {
-                assets.push({
-                    name: item.name,
-                    path: item.path,
-                    size: item.size,
-                    ext: item.ext,
-                    type: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-                        item.ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
-                            item.ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' :
-                                item.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
-                    previewable: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf|txt|md|json|geojson|csv|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? true : false
-                });
-            }
-            if (item.children) flatten(item.children);
-        }
+      if (item.type === 'file') {
+        assets.push({
+          name: item.name,
+          path: item.path,
+          size: item.size,
+          ext: item.ext,
+          type: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+            item.ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
+              item.ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' :
+                item.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
+          previewable: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf|txt|md|json|geojson|csv|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? true : false
+        });
+      }
+      if (item.children) flatten(item.children);
     }
+  }
 
-    flatten(structure);
-    return assets;
+  flatten(structure);
+  return assets;
 }
 
 function generateFoldersJSON(structure) {
-    const folders = [];
+  const folders = [];
 
-    function flatten(items) {
-        for (const item of items) {
-            if (item.name.startsWith('.')) continue;
-            if (item.type === 'folder') {
-                folders.push({
-                    name: item.name,
-                    path: item.path,
-                    children: item.children ? true : false
-                });
-                if (item.children) flatten(item.children);
-            }
-        }
+  function flatten(items) {
+    for (const item of items) {
+      if (item.name.startsWith('.')) continue;
+      if (item.type === 'folder') {
+        folders.push({
+          name: item.name,
+          path: item.path,
+          children: item.children ? true : false
+        });
+        if (item.children) flatten(item.children);
+      }
     }
+  }
 
-    flatten(structure);
-    return folders;
+  flatten(structure);
+  return folders;
 }
 
 function getFileIconSVG(type) {
-    if (type === 'image') {
-        return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
-    } else if (type === 'data' || type === 'vector') {
-        return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
-    } else if (type === 'text') {
-        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
-    } else {
-        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
-    }
+  if (type === 'image') {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
+  } else if (type === 'data' || type === 'vector') {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
+  } else if (type === 'text') {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
+  } else {
+    return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
+  }
 }
 
+// Verifica wallpaper (background)
 let backgroundStyle = "background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80');";
 if (fs.existsSync('./background.gif')) {
-    backgroundStyle = "background-image: url('/background.gif');";
+  backgroundStyle = "background-image: url('/background.gif');";
 } else if (fs.existsSync('./background.jpg')) {
-    backgroundStyle = "background-image: url('/background.jpg');";
+  backgroundStyle = "background-image: url('/background.jpg');";
 } else if (fs.existsSync('./background.png')) {
-    backgroundStyle = "background-image: url('/background.png');";
+  backgroundStyle = "background-image: url('/background.png');";
+}
+
+// Verifica boot screen
+let bootImage = '';
+let bootDuration = 4000; // 4 segundos para o GIF rodar
+if (fs.existsSync('./boot.gif')) {
+  bootImage = '/boot.gif';
+  bootDuration = 4000;
+} else if (fs.existsSync('./boot.png')) {
+  bootImage = '/boot.png';
+  bootDuration = 3000;
+} else if (fs.existsSync('./boot.jpg')) {
+  bootImage = '/boot.jpg';
+  bootDuration = 3000;
 }
 
 const structure = scanDirectory('.');
@@ -117,15 +133,16 @@ const folders = generateFoldersJSON(structure);
 
 const rootFolders = structure.filter(item => item.type === 'folder');
 const rootFiles = structure.filter(item => item.type === 'file' &&
-    item.name !== 'index.html' && item.name !== 'generate-index.js' &&
-    item.name !== 'netlify.toml' && item.name !== 'README.md' &&
-    item.name !== 'logo512.png' && item.name !== 'background.gif' &&
-    item.name !== 'background.jpg' && item.name !== 'background.png');
+  item.name !== 'index.html' && item.name !== 'generate-index.js' &&
+  item.name !== 'netlify.toml' && item.name !== 'README.md' &&
+  item.name !== 'logo512.png' && item.name !== 'background.gif' &&
+  item.name !== 'background.jpg' && item.name !== 'background.png' &&
+  item.name !== 'boot.gif' && item.name !== 'boot.png' && item.name !== 'boot.jpg');
 
 let desktopIconsHTML = '';
 
 rootFolders.forEach(folder => {
-    desktopIconsHTML += `
+  desktopIconsHTML += `
     <div class="desktop-icon" data-folder="${folder.path}" ondblclick="openFolder('${folder.path}')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
@@ -135,11 +152,11 @@ rootFolders.forEach(folder => {
 });
 
 rootFiles.forEach(file => {
-    const ext = path.extname(file.name).toLowerCase();
-    const type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-        ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
-            ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' : 'other';
-    desktopIconsHTML += `
+  const ext = path.extname(file.name).toLowerCase();
+  const type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+    ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
+      ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' : 'other';
+  desktopIconsHTML += `
     <div class="desktop-icon" data-file="${file.path}" ondblclick="openFile('${file.path}')">
       ${getFileIconSVG(type)}
       <span>${file.name}</span>
@@ -150,12 +167,18 @@ const folderStructureJSON = JSON.stringify(structure).replace(/</g, '\\u003c');
 
 let startMenuItemsHTML = '';
 rootFolders.forEach(folder => {
-    startMenuItemsHTML += `
+  startMenuItemsHTML += `
       <div class="start-menu-item" onclick="openFolder('${folder.path}'); toggleStart();">
         <svg viewBox="0 0 24 24" fill="#f5c842"><path d="M3 5h6l2 2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
         ${folder.name}
       </div>`;
 });
+
+// Boot screen HTML
+const bootScreenHTML = bootImage ? `
+  <div id="bootScreen">
+    <img src="${bootImage}" alt="Carregando..." id="bootImage">
+  </div>` : '';
 
 const html = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -174,8 +197,41 @@ const html = `<!DOCTYPE html>
       overflow: hidden;
       cursor: default;
       user-select: none;
+      background: #000;
     }
 
+       /* Boot Screen */
+    #bootScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.1s ease-out;
+    }
+
+    #bootScreen.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #bootImage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      image-rendering: pixelated;
+    }
+
+    /* Desktop */
     #desktop {
       position: fixed;
       top: 0;
@@ -508,10 +564,10 @@ const html = `<!DOCTYPE html>
       background: rgba(49, 104, 213, 1);
     }
 
-    /* Text viewer */
     .text-viewer .window-content {
       background: #1e1e2e;
       padding: 0;
+      position: relative;
     }
 
     .text-viewer pre {
@@ -527,6 +583,13 @@ const html = `<!DOCTYPE html>
       min-height: 100%;
     }
 
+    .json-key { color: #89b4fa; }
+    .json-string { color: #a6e3a1; }
+    .json-number { color: #fab387; }
+    .json-boolean { color: #cba6f7; }
+    .json-null { color: #6c7086; }
+    .json-bracket { color: #f9e2af; }
+
     .text-viewer .viewer-info {
       position: absolute;
       bottom: 8px;
@@ -537,10 +600,6 @@ const html = `<!DOCTYPE html>
       padding: 4px 8px;
       border-radius: 4px;
       z-index: 10;
-    }
-
-    .text-viewer .window-content {
-      position: relative;
     }
 
     #contextMenu {
@@ -617,6 +676,8 @@ const html = `<!DOCTYPE html>
   </style>
 </head>
 <body>
+  ${bootScreenHTML}
+
   <div id="desktop">
     ${desktopIconsHTML}
     
@@ -677,11 +738,25 @@ const html = `<!DOCTYPE html>
     var activeWindow = null;
     var dragData = null;
 
+    // Boot sequence
+    window.addEventListener('DOMContentLoaded', function() {
+      var bootScreen = document.getElementById('bootScreen');
+      if (!bootScreen) return;
+
+      setTimeout(function() {
+        bootScreen.classList.add('hide');
+        setTimeout(function() {
+          if (bootScreen.parentNode) bootScreen.parentNode.removeChild(bootScreen);
+        }, 300);
+      }, ${bootDuration});
+    });
+
     function getFileType(ext) {
       if (!ext) return 'other';
       ext = ext.toLowerCase();
       if (ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i)) return 'image';
-      if (ext.match(/\.(json|geojson|csv)$/i)) return 'data';
+      if (ext.match(/\.(json|geojson)$/i)) return 'json';
+      if (ext.match(/\.(csv)$/i)) return 'csv';
       if (ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i)) return 'text';
       return 'other';
     }
@@ -689,7 +764,7 @@ const html = `<!DOCTYPE html>
     function getFileIconSVG(type) {
       if (type === 'image') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
-      } else if (type === 'data' || type === 'vector') {
+      } else if (type === 'data' || type === 'vector' || type === 'json' || type === 'csv') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
       } else if (type === 'text') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
@@ -892,7 +967,8 @@ const html = `<!DOCTYPE html>
             child.name !== 'index.html' && child.name !== 'generate-index.js' && 
             child.name !== 'netlify.toml' && child.name !== 'README.md' && 
             child.name !== 'logo512.png' && child.name !== 'background.gif' &&
-            child.name !== 'background.jpg' && child.name !== 'background.png') {
+            child.name !== 'background.jpg' && child.name !== 'background.png' &&
+            child.name !== 'boot.gif' && child.name !== 'boot.png' && child.name !== 'boot.jpg') {
           files.push(child);
         } else if (child.type === 'folder') {
           subfolders.push(child);
@@ -981,11 +1057,33 @@ const html = `<!DOCTYPE html>
         });
     }
 
+    function syntaxHighlightJSON(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+            match = match.slice(0, -1) + '</span>:';
+            return '<span class="' + cls + '">' + match;
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
     function openFile(filePath) {
       var file = findInStructure(filePath, FOLDER_STRUCTURE);
       if (!file || file.type !== 'file') return;
 
       var ext = file.ext ? file.ext.toLowerCase() : '';
+      var type = getFileType(ext);
 
       if (ext === '.pdf') {
         var content = '<iframe src="/' + file.path + '#toolbar=0&navpanes=0" style="width:100%;height:100%;border:none;"></iframe>' +
@@ -1003,15 +1101,43 @@ const html = `<!DOCTYPE html>
           '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
           '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
         createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
-      } else if (getFileType(ext) === 'text' || getFileType(ext) === 'data') {
-        // Text viewer
+      } else if (type === 'json') {
         var content = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cdd6f4;"><div class="loading">Carregando...</div></div>';
-        var winId = createWindow(file.name, content, { width: '650px', height: '500px', isTextViewer: true });
+        var winId = createWindow(file.name, content, { width: '700px', height: '550px', isTextViewer: true });
         
         fetch('/' + file.path)
           .then(function(r) { return r.text(); })
           .then(function(text) {
             var win = document.getElementById(winId);
+            if (!win) return;
+            var wc = win.querySelector('.window-content');
+            try {
+              var parsed = JSON.parse(text);
+              var formatted = JSON.stringify(parsed, null, 2);
+              var highlighted = syntaxHighlightJSON(formatted);
+              wc.innerHTML = '<pre>' + highlighted + '</pre>' +
+                '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + ' | Formatado</div>' +
+                '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+            } catch(e) {
+              var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              wc.innerHTML = '<pre>' + escaped + '</pre>' +
+                '<div class="viewer-info">JSON inválido - ' + formatSize(file.size || 0) + '</div>' +
+                '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+            }
+          })
+          .catch(function() {
+            var win = document.getElementById(winId);
+            if (!win) return;
+            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar. <a href="/' + file.path + '" download" style="color:#67e8f9;">Baixar</a></div>';
+          });
+      } else if (type === 'text' || type === 'csv') {
+        var content = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cdd6f4;"><div class="loading">Carregando...</div></div>';
+        var winId2 = createWindow(file.name, content, { width: '650px', height: '500px', isTextViewer: true });
+        
+        fetch('/' + file.path)
+          .then(function(r) { return r.text(); })
+          .then(function(text) {
+            var win = document.getElementById(winId2);
             if (!win) return;
             var wc = win.querySelector('.window-content');
             var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1020,9 +1146,9 @@ const html = `<!DOCTYPE html>
               '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
           })
           .catch(function() {
-            var win = document.getElementById(winId);
+            var win = document.getElementById(winId2);
             if (!win) return;
-            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar arquivo. <a href="/' + file.path + '" download style="color:#67e8f9;">Baixar</a></div>';
+            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar. <a href="/' + file.path + '" download" style="color:#67e8f9;">Baixar</a></div>';
           });
       } else {
         var content = '<div class="info-content">' +
@@ -1051,3 +1177,9 @@ fs.writeFileSync('index.html', html);
 console.log('✅ index.html gerado com sucesso!');
 console.log('📦 ' + assets.length + ' assets encontrados');
 console.log('📁 ' + folders.length + ' pastas encontradas');
+if (fs.existsSync('./boot.gif')) {
+  console.log('🎬 Boot GIF detectado!');
+}
+if (fs.existsSync('./background.gif')) {
+  console.log('🖼️ Background GIF detectado!');
+}

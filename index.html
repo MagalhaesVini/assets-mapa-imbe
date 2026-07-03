@@ -15,8 +15,41 @@
       overflow: hidden;
       cursor: default;
       user-select: none;
+      background: #000;
     }
 
+       /* Boot Screen */
+    #bootScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.1s ease-out;
+    }
+
+    #bootScreen.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #bootImage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      image-rendering: pixelated;
+    }
+
+    /* Desktop */
     #desktop {
       position: fixed;
       top: 0;
@@ -349,10 +382,10 @@
       background: rgba(49, 104, 213, 1);
     }
 
-    /* Text viewer */
     .text-viewer .window-content {
       background: #1e1e2e;
       padding: 0;
+      position: relative;
     }
 
     .text-viewer pre {
@@ -368,6 +401,13 @@
       min-height: 100%;
     }
 
+    .json-key { color: #89b4fa; }
+    .json-string { color: #a6e3a1; }
+    .json-number { color: #fab387; }
+    .json-boolean { color: #cba6f7; }
+    .json-null { color: #6c7086; }
+    .json-bracket { color: #f9e2af; }
+
     .text-viewer .viewer-info {
       position: absolute;
       bottom: 8px;
@@ -378,10 +418,6 @@
       padding: 4px 8px;
       border-radius: 4px;
       z-index: 10;
-    }
-
-    .text-viewer .window-content {
-      position: relative;
     }
 
     #contextMenu {
@@ -458,6 +494,11 @@
   </style>
 </head>
 <body>
+  
+  <div id="bootScreen">
+    <img src="/boot.gif" alt="Carregando..." id="bootImage">
+  </div>
+
   <div id="desktop">
     
     <div class="desktop-icon" data-folder="imagens" ondblclick="openFolder('imagens')">
@@ -490,9 +531,13 @@
       </svg>
       <span>raster</span>
     </div>
-    <div class="desktop-icon" data-file="naoAbrir.txt" ondblclick="openFile('naoAbrir.txt')">
+    <div class="desktop-icon" data-file="Não Abrir.gif" ondblclick="openFile('Não Abrir.gif')">
+      <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>
+      <span>Não Abrir.gif</span>
+    </div>
+    <div class="desktop-icon" data-file="Não Ler.txt" ondblclick="openFile('Não Ler.txt')">
       <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>
-      <span>naoAbrir.txt</span>
+      <span>Não Ler.txt</span>
     </div>
     
     <div id="desktop-footer">
@@ -567,16 +612,30 @@
 
   <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
   <script>
-    var FOLDER_STRUCTURE = [{"type":"file","name":"background.gif","path":"background.gif","size":32937017,"ext":".gif"},{"type":"file","name":"generate-index.js","path":"generate-index.js","size":40056,"ext":".js"},{"type":"folder","name":"imagens","path":"imagens","children":[{"type":"file","name":"centro.jpg","path":"imagens/centro.jpg","size":302769,"ext":".jpg"},{"type":"file","name":"portico.jpg","path":"imagens/portico.jpg","size":7262208,"ext":".jpg"}]},{"type":"file","name":"index.html","path":"index.html","size":39859,"ext":".html"},{"type":"folder","name":"json","path":"json","children":[{"type":"file","name":"ACS_2026.geojson","path":"json/ACS_2026.geojson","size":48188,"ext":".geojson"},{"type":"file","name":"logradouros.json","path":"json/logradouros.json","size":1494426,"ext":".json"},{"type":"file","name":"malhamunicipalibge.geojson","path":"json/malhamunicipalibge.geojson","size":5992,"ext":".geojson"}]},{"type":"file","name":"logo512.png","path":"logo512.png","size":267160,"ext":".png"},{"type":"folder","name":"mapas","path":"mapas","children":[{"type":"file","name":"IBGE Colorido Bairro 2014.pdf","path":"mapas/IBGE Colorido Bairro 2014.pdf","size":2938498,"ext":".pdf"},{"type":"file","name":"Imbé Junho 2025.pdf","path":"mapas/Imbé Junho 2025.pdf","size":1905671,"ext":".pdf"},{"type":"file","name":"Nordeste 36.pdf","path":"mapas/Nordeste 36.pdf","size":249812,"ext":".pdf"},{"type":"file","name":"Nova Nordeste 38.pdf","path":"mapas/Nova Nordeste 38.pdf","size":118944,"ext":".pdf"},{"type":"file","name":"Santa Terezinha 5, 6 e 7.pdf","path":"mapas/Santa Terezinha 5, 6 e 7.pdf","size":177546,"ext":".pdf"}]},{"type":"file","name":"naoAbrir.txt","path":"naoAbrir.txt","size":891,"ext":".txt"},{"type":"file","name":"netlify.toml","path":"netlify.toml","size":84,"ext":".toml"},{"type":"folder","name":"predios","path":"predios","children":[{"type":"folder","name":"Academia da Saúde","path":"predios/Academia da Saúde","children":[{"type":"file","name":"DJI_20260122165023_0008_D.JPG","path":"predios/Academia da Saúde/DJI_20260122165023_0008_D.JPG","size":7901184,"ext":".jpg"}]},{"type":"folder","name":"Braço Morto","path":"predios/Braço Morto","children":[{"type":"file","name":"DJI_20260126110556_0035_D.JPG","path":"predios/Braço Morto/DJI_20260126110556_0035_D.JPG","size":7659520,"ext":".jpg"},{"type":"file","name":"DJI_20260126110623_0036_D.JPG","path":"predios/Braço Morto/DJI_20260126110623_0036_D.JPG","size":7847936,"ext":".jpg"}]},{"type":"folder","name":"Capeb II","path":"predios/Capeb II","children":[{"type":"file","name":"DJI-20260204113731-0167-D.jpg","path":"predios/Capeb II/DJI-20260204113731-0167-D.jpg","size":7925760,"ext":".jpg"},{"type":"file","name":"DJI-20260204113801-0168-D.jpg","path":"predios/Capeb II/DJI-20260204113801-0168-D.jpg","size":8093696,"ext":".jpg"}]},{"type":"folder","name":"Lago do Jacaré","path":"predios/Lago do Jacaré","children":[{"type":"file","name":"DJI_20260202103715_0061_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103715_0061_D.JPG","size":8687616,"ext":".jpg"},{"type":"file","name":"DJI_20260202103956_0066_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103956_0066_D.JPG","size":8589312,"ext":".jpg"},{"type":"file","name":"DJI_20260202104426_0068_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202104426_0068_D.JPG","size":8355840,"ext":".jpg"}]},{"type":"folder","name":"Praça das Orações","path":"predios/Praça das Orações","children":[{"type":"file","name":"1778077365798-pracadaoracao.jpg","path":"predios/Praça das Orações/1778077365798-pracadaoracao.jpg","size":4567000,"ext":".jpg"},{"type":"file","name":"1778077368772-pracadaoracao2.jpg","path":"predios/Praça das Orações/1778077368772-pracadaoracao2.jpg","size":4455681,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 12h","path":"predios/Pronto Atendimento 12h","children":[{"type":"file","name":"DJI-20260325151041-0063-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151041-0063-D-BEIRAMAR.jpg","size":6897664,"ext":".jpg"},{"type":"file","name":"DJI-20260325151222-0066-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151222-0066-D-BEIRAMAR.jpg","size":7766016,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 24h","path":"predios/Pronto Atendimento 24h","children":[{"type":"file","name":"DJI_20260212163730_0015_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163730_0015_D_BEIRAMAR.JPG","size":7626752,"ext":".jpg"},{"type":"file","name":"DJI_20260212163914_0020_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163914_0020_D_BEIRAMAR.JPG","size":7548928,"ext":".jpg"}]},{"type":"folder","name":"USF Albatroz","path":"predios/USF Albatroz","children":[{"type":"file","name":"usfalbatroz.jpg","path":"predios/USF Albatroz/usfalbatroz.jpg","size":6709248,"ext":".jpg"}]}]},{"type":"folder","name":"raster","path":"raster","children":[{"type":"file","name":"imbecadgeo.tiff","path":"raster/imbecadgeo.tiff","size":825867375,"ext":".tiff"},{"type":"file","name":"OlavoBilac.tif","path":"raster/OlavoBilac.tif","size":47433339,"ext":".tif"}]},{"type":"file","name":"README.md","path":"README.md","size":2004,"ext":".md"}];
+    var FOLDER_STRUCTURE = [{"type":"file","name":"background.gif","path":"background.gif","size":111299,"ext":".gif"},{"type":"file","name":"boot.gif","path":"boot.gif","size":127322,"ext":".gif"},{"type":"file","name":"generate-index.js","path":"generate-index.js","size":44609,"ext":".js"},{"type":"folder","name":"imagens","path":"imagens","children":[{"type":"file","name":"centro.jpg","path":"imagens/centro.jpg","size":302769,"ext":".jpg"},{"type":"file","name":"portico.jpg","path":"imagens/portico.jpg","size":7262208,"ext":".jpg"}]},{"type":"file","name":"index.html","path":"index.html","size":44842,"ext":".html"},{"type":"folder","name":"json","path":"json","children":[{"type":"file","name":"ACS_2024.json","path":"json/ACS_2024.json","size":151197,"ext":".json"},{"type":"file","name":"ACS_2026.geojson","path":"json/ACS_2026.geojson","size":48188,"ext":".geojson"},{"type":"file","name":"logradouros_2026-06-25.geojson","path":"json/logradouros_2026-06-25.geojson","size":1486272,"ext":".geojson"},{"type":"file","name":"malhamunicipal.geojson","path":"json/malhamunicipal.geojson","size":5992,"ext":".geojson"}]},{"type":"file","name":"logo512.png","path":"logo512.png","size":267160,"ext":".png"},{"type":"folder","name":"mapas","path":"mapas","children":[{"type":"file","name":"IBGE Colorido Bairro 2014.pdf","path":"mapas/IBGE Colorido Bairro 2014.pdf","size":2938498,"ext":".pdf"},{"type":"file","name":"Imbé Junho 2025.pdf","path":"mapas/Imbé Junho 2025.pdf","size":1905671,"ext":".pdf"},{"type":"file","name":"Nordeste 36.pdf","path":"mapas/Nordeste 36.pdf","size":249812,"ext":".pdf"},{"type":"file","name":"Nova Nordeste 38.pdf","path":"mapas/Nova Nordeste 38.pdf","size":118944,"ext":".pdf"},{"type":"file","name":"Santa Terezinha 5, 6 e 7.pdf","path":"mapas/Santa Terezinha 5, 6 e 7.pdf","size":177546,"ext":".pdf"}]},{"type":"file","name":"netlify.toml","path":"netlify.toml","size":84,"ext":".toml"},{"type":"file","name":"Não Abrir.gif","path":"Não Abrir.gif","size":32937017,"ext":".gif"},{"type":"file","name":"Não Ler.txt","path":"Não Ler.txt","size":891,"ext":".txt"},{"type":"folder","name":"predios","path":"predios","children":[{"type":"folder","name":"Academia da Saúde","path":"predios/Academia da Saúde","children":[{"type":"file","name":"DJI_20260122165023_0008_D.JPG","path":"predios/Academia da Saúde/DJI_20260122165023_0008_D.JPG","size":7901184,"ext":".jpg"}]},{"type":"folder","name":"Braço Morto","path":"predios/Braço Morto","children":[{"type":"file","name":"DJI_20260126110556_0035_D.JPG","path":"predios/Braço Morto/DJI_20260126110556_0035_D.JPG","size":7659520,"ext":".jpg"},{"type":"file","name":"DJI_20260126110623_0036_D.JPG","path":"predios/Braço Morto/DJI_20260126110623_0036_D.JPG","size":7847936,"ext":".jpg"}]},{"type":"folder","name":"Capeb II","path":"predios/Capeb II","children":[{"type":"file","name":"DJI-20260204113731-0167-D.jpg","path":"predios/Capeb II/DJI-20260204113731-0167-D.jpg","size":7925760,"ext":".jpg"},{"type":"file","name":"DJI-20260204113801-0168-D.jpg","path":"predios/Capeb II/DJI-20260204113801-0168-D.jpg","size":8093696,"ext":".jpg"}]},{"type":"folder","name":"Lago do Jacaré","path":"predios/Lago do Jacaré","children":[{"type":"file","name":"DJI_20260202103715_0061_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103715_0061_D.JPG","size":8687616,"ext":".jpg"},{"type":"file","name":"DJI_20260202103956_0066_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202103956_0066_D.JPG","size":8589312,"ext":".jpg"},{"type":"file","name":"DJI_20260202104426_0068_D.JPG","path":"predios/Lago do Jacaré/DJI_20260202104426_0068_D.JPG","size":8355840,"ext":".jpg"}]},{"type":"folder","name":"Praça das Orações","path":"predios/Praça das Orações","children":[{"type":"file","name":"1778077365798-pracadaoracao.jpg","path":"predios/Praça das Orações/1778077365798-pracadaoracao.jpg","size":4567000,"ext":".jpg"},{"type":"file","name":"1778077368772-pracadaoracao2.jpg","path":"predios/Praça das Orações/1778077368772-pracadaoracao2.jpg","size":4455681,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 12h","path":"predios/Pronto Atendimento 12h","children":[{"type":"file","name":"DJI-20260325151041-0063-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151041-0063-D-BEIRAMAR.jpg","size":6897664,"ext":".jpg"},{"type":"file","name":"DJI-20260325151222-0066-D-BEIRAMAR.jpg","path":"predios/Pronto Atendimento 12h/DJI-20260325151222-0066-D-BEIRAMAR.jpg","size":7766016,"ext":".jpg"}]},{"type":"folder","name":"Pronto Atendimento 24h","path":"predios/Pronto Atendimento 24h","children":[{"type":"file","name":"DJI_20260212163730_0015_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163730_0015_D_BEIRAMAR.JPG","size":7626752,"ext":".jpg"},{"type":"file","name":"DJI_20260212163914_0020_D_BEIRAMAR.JPG","path":"predios/Pronto Atendimento 24h/DJI_20260212163914_0020_D_BEIRAMAR.JPG","size":7548928,"ext":".jpg"}]},{"type":"folder","name":"USF Albatroz","path":"predios/USF Albatroz","children":[{"type":"file","name":"usfalbatroz.jpg","path":"predios/USF Albatroz/usfalbatroz.jpg","size":6709248,"ext":".jpg"}]}]},{"type":"folder","name":"raster","path":"raster","children":[{"type":"file","name":"imbecadgeo.tiff","path":"raster/imbecadgeo.tiff","size":825867375,"ext":".tiff"},{"type":"file","name":"OlavoBilac.tif","path":"raster/OlavoBilac.tif","size":47433339,"ext":".tif"}]},{"type":"file","name":"README.md","path":"README.md","size":2004,"ext":".md"}];
     var windowZIndex = 100;
     var activeWindow = null;
     var dragData = null;
+
+    // Boot sequence
+    window.addEventListener('DOMContentLoaded', function() {
+      var bootScreen = document.getElementById('bootScreen');
+      if (!bootScreen) return;
+
+      setTimeout(function() {
+        bootScreen.classList.add('hide');
+        setTimeout(function() {
+          if (bootScreen.parentNode) bootScreen.parentNode.removeChild(bootScreen);
+        }, 300);
+      }, 4000);
+    });
 
     function getFileType(ext) {
       if (!ext) return 'other';
       ext = ext.toLowerCase();
       if (ext.match(/.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i)) return 'image';
-      if (ext.match(/.(json|geojson|csv)$/i)) return 'data';
+      if (ext.match(/.(json|geojson)$/i)) return 'json';
+      if (ext.match(/.(csv)$/i)) return 'csv';
       if (ext.match(/.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i)) return 'text';
       return 'other';
     }
@@ -584,7 +643,7 @@
     function getFileIconSVG(type) {
       if (type === 'image') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
-      } else if (type === 'data' || type === 'vector') {
+      } else if (type === 'data' || type === 'vector' || type === 'json' || type === 'csv') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
       } else if (type === 'text') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
@@ -787,7 +846,8 @@
             child.name !== 'index.html' && child.name !== 'generate-index.js' && 
             child.name !== 'netlify.toml' && child.name !== 'README.md' && 
             child.name !== 'logo512.png' && child.name !== 'background.gif' &&
-            child.name !== 'background.jpg' && child.name !== 'background.png') {
+            child.name !== 'background.jpg' && child.name !== 'background.png' &&
+            child.name !== 'boot.gif' && child.name !== 'boot.png' && child.name !== 'boot.jpg') {
           files.push(child);
         } else if (child.type === 'folder') {
           subfolders.push(child);
@@ -876,11 +936,33 @@
         });
     }
 
+    function syntaxHighlightJSON(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\"])*"(s*:)?|(true|false|null)|-?d+(?:.d*)?(?:[eE][+-]?d+)?)/g, function (match) {
+        var cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+            match = match.slice(0, -1) + '</span>:';
+            return '<span class="' + cls + '">' + match;
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
     function openFile(filePath) {
       var file = findInStructure(filePath, FOLDER_STRUCTURE);
       if (!file || file.type !== 'file') return;
 
       var ext = file.ext ? file.ext.toLowerCase() : '';
+      var type = getFileType(ext);
 
       if (ext === '.pdf') {
         var content = '<iframe src="/' + file.path + '#toolbar=0&navpanes=0" style="width:100%;height:100%;border:none;"></iframe>' +
@@ -898,15 +980,43 @@
           '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
           '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
         createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
-      } else if (getFileType(ext) === 'text' || getFileType(ext) === 'data') {
-        // Text viewer
+      } else if (type === 'json') {
         var content = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cdd6f4;"><div class="loading">Carregando...</div></div>';
-        var winId = createWindow(file.name, content, { width: '650px', height: '500px', isTextViewer: true });
+        var winId = createWindow(file.name, content, { width: '700px', height: '550px', isTextViewer: true });
         
         fetch('/' + file.path)
           .then(function(r) { return r.text(); })
           .then(function(text) {
             var win = document.getElementById(winId);
+            if (!win) return;
+            var wc = win.querySelector('.window-content');
+            try {
+              var parsed = JSON.parse(text);
+              var formatted = JSON.stringify(parsed, null, 2);
+              var highlighted = syntaxHighlightJSON(formatted);
+              wc.innerHTML = '<pre>' + highlighted + '</pre>' +
+                '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + ' | Formatado</div>' +
+                '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+            } catch(e) {
+              var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              wc.innerHTML = '<pre>' + escaped + '</pre>' +
+                '<div class="viewer-info">JSON inválido - ' + formatSize(file.size || 0) + '</div>' +
+                '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+            }
+          })
+          .catch(function() {
+            var win = document.getElementById(winId);
+            if (!win) return;
+            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar. <a href="/' + file.path + '" download" style="color:#67e8f9;">Baixar</a></div>';
+          });
+      } else if (type === 'text' || type === 'csv') {
+        var content = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cdd6f4;"><div class="loading">Carregando...</div></div>';
+        var winId2 = createWindow(file.name, content, { width: '650px', height: '500px', isTextViewer: true });
+        
+        fetch('/' + file.path)
+          .then(function(r) { return r.text(); })
+          .then(function(text) {
+            var win = document.getElementById(winId2);
             if (!win) return;
             var wc = win.querySelector('.window-content');
             var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -915,9 +1025,9 @@
               '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
           })
           .catch(function() {
-            var win = document.getElementById(winId);
+            var win = document.getElementById(winId2);
             if (!win) return;
-            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar arquivo. <a href="/' + file.path + '" download style="color:#67e8f9;">Baixar</a></div>';
+            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar. <a href="/' + file.path + '" download" style="color:#67e8f9;">Baixar</a></div>';
           });
       } else {
         var content = '<div class="info-content">' +
