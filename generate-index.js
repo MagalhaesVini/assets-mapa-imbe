@@ -2,172 +2,130 @@ const fs = require('fs');
 const path = require('path');
 
 function scanDirectory(dir, basePath = '') {
-  const items = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const items = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
-    if (entry.name === 'node_modules') continue;
+    for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        if (entry.name === 'node_modules') continue;
 
-    const fullPath = path.join(dir, entry.name);
-    const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
 
-    if (entry.isDirectory()) {
-      const children = scanDirectory(fullPath, relativePath);
-      items.push({
-        type: 'folder',
-        name: entry.name,
-        path: relativePath,
-        children: children
-      });
-    } else {
-      const stats = fs.statSync(fullPath);
-      const ext = path.extname(entry.name).toLowerCase();
-      
-      items.push({
-        type: 'file',
-        name: entry.name,
-        path: relativePath,
-        size: stats.size,
-        ext: ext
-      });
+        if (entry.isDirectory()) {
+            const children = scanDirectory(fullPath, relativePath);
+            items.push({
+                type: 'folder',
+                name: entry.name,
+                path: relativePath,
+                children: children
+            });
+        } else {
+            const stats = fs.statSync(fullPath);
+            const ext = path.extname(entry.name).toLowerCase();
+
+            items.push({
+                type: 'file',
+                name: entry.name,
+                path: relativePath,
+                size: stats.size,
+                ext: ext
+            });
+        }
     }
-  }
 
-  return items;
+    return items;
 }
 
 function generateAssetsJSON(structure) {
-  const assets = [];
+    const assets = [];
 
-  function flatten(items) {
-    for (const item of items) {
-      if (item.name === 'index.html' || item.name === 'generate-index.js' || 
-          item.name === 'netlify.toml' || item.name === 'README.md' || 
-          item.name === 'logo512.png' || item.name === 'package.json' ||
-          item.name === 'package-lock.json' || item.name === 'background.gif' ||
-          item.name === 'background.jpg' || item.name === 'background.png') continue;
+    function flatten(items) {
+        for (const item of items) {
+            if (item.name === 'index.html' || item.name === 'generate-index.js' ||
+                item.name === 'netlify.toml' || item.name === 'README.md' ||
+                item.name === 'logo512.png' || item.name === 'package.json' ||
+                item.name === 'package-lock.json' || item.name === 'background.gif' ||
+                item.name === 'background.jpg' || item.name === 'background.png') continue;
 
-      if (item.type === 'file') {
-        assets.push({
-          name: item.name,
-          path: item.path,
-          size: item.size,
-          ext: item.ext,
-          type: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-                item.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
-          previewable: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? true : false
-        });
-      }
-      if (item.children) flatten(item.children);
+            if (item.type === 'file') {
+                assets.push({
+                    name: item.name,
+                    path: item.path,
+                    size: item.size,
+                    ext: item.ext,
+                    type: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+                        item.ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
+                            item.ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' :
+                                item.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
+                    previewable: item.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf|txt|md|json|geojson|csv|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? true : false
+                });
+            }
+            if (item.children) flatten(item.children);
+        }
     }
-  }
 
-  flatten(structure);
-  return assets;
+    flatten(structure);
+    return assets;
 }
 
 function generateFoldersJSON(structure) {
-  const folders = [];
+    const folders = [];
 
-  function flatten(items) {
-    for (const item of items) {
-      if (item.name.startsWith('.')) continue;
-      if (item.type === 'folder') {
-        folders.push({
-          name: item.name,
-          path: item.path,
-          children: item.children ? true : false
-        });
-        if (item.children) flatten(item.children);
-      }
+    function flatten(items) {
+        for (const item of items) {
+            if (item.name.startsWith('.')) continue;
+            if (item.type === 'folder') {
+                folders.push({
+                    name: item.name,
+                    path: item.path,
+                    children: item.children ? true : false
+                });
+                if (item.children) flatten(item.children);
+            }
+        }
     }
-  }
 
-  flatten(structure);
-  return folders;
+    flatten(structure);
+    return folders;
 }
 
 function getFileIconSVG(type) {
-  if (type === 'image') {
-    return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
-  } else if (type === 'vector') {
-    return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
-  } else {
-    return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
-  }
+    if (type === 'image') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
+    } else if (type === 'data' || type === 'vector') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
+    } else if (type === 'text') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
+    } else {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
+    }
 }
 
-function getFolderContents(folderPath, structure) {
-  // Encontra a pasta na estrutura
-  function findFolder(items, targetPath) {
-    for (const item of items) {
-      if (item.path === targetPath) return item;
-      if (item.children) {
-        const found = findFolder(item.children, targetPath);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  const folder = findFolder(structure, folderPath);
-  if (!folder || !folder.children) return { files: [], folders: [] };
-
-  const files = [];
-  const subfolders = [];
-
-  for (const child of folder.children) {
-    if (child.type === 'file' && 
-        child.name !== 'index.html' && child.name !== 'generate-index.js' && 
-        child.name !== 'netlify.toml' && child.name !== 'README.md' && 
-        child.name !== 'logo512.png') {
-      files.push({
-        name: child.name,
-        path: child.path,
-        size: child.size,
-        ext: child.ext,
-        type: child.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-              child.ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other',
-        previewable: child.ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? true : false
-      });
-    } else if (child.type === 'folder') {
-      subfolders.push({
-        name: child.name,
-        path: child.path
-      });
-    }
-  }
-
-  return { files, folders: subfolders };
-}
-
-// Verifica background
 let backgroundStyle = "background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80');";
 if (fs.existsSync('./background.gif')) {
-  backgroundStyle = "background-image: url('/background.gif');";
+    backgroundStyle = "background-image: url('/background.gif');";
 } else if (fs.existsSync('./background.jpg')) {
-  backgroundStyle = "background-image: url('/background.jpg');";
+    backgroundStyle = "background-image: url('/background.jpg');";
 } else if (fs.existsSync('./background.png')) {
-  backgroundStyle = "background-image: url('/background.png');";
+    backgroundStyle = "background-image: url('/background.png');";
 }
 
 const structure = scanDirectory('.');
 const assets = generateAssetsJSON(structure);
 const folders = generateFoldersJSON(structure);
 
-// Pega pastas da raiz para o desktop
 const rootFolders = structure.filter(item => item.type === 'folder');
-const rootFiles = structure.filter(item => item.type === 'file' && 
-  item.name !== 'index.html' && item.name !== 'generate-index.js' && 
-  item.name !== 'netlify.toml' && item.name !== 'README.md' && 
-  item.name !== 'logo512.png' && item.name !== 'background.gif' &&
-  item.name !== 'background.jpg' && item.name !== 'background.png');
+const rootFiles = structure.filter(item => item.type === 'file' &&
+    item.name !== 'index.html' && item.name !== 'generate-index.js' &&
+    item.name !== 'netlify.toml' && item.name !== 'README.md' &&
+    item.name !== 'logo512.png' && item.name !== 'background.gif' &&
+    item.name !== 'background.jpg' && item.name !== 'background.png');
 
 let desktopIconsHTML = '';
 
 rootFolders.forEach(folder => {
-  desktopIconsHTML += `
+    desktopIconsHTML += `
     <div class="desktop-icon" data-folder="${folder.path}" ondblclick="openFolder('${folder.path}')">
       <svg viewBox="0 0 48 48" fill="none">
         <path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/>
@@ -177,22 +135,22 @@ rootFolders.forEach(folder => {
 });
 
 rootFiles.forEach(file => {
-  const ext = path.extname(file.name).toLowerCase();
-  const type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-               ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other';
-  desktopIconsHTML += `
+    const ext = path.extname(file.name).toLowerCase();
+    const type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
+        ext.match(/\.(json|geojson|csv)$/i) ? 'data' :
+            ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i) ? 'text' : 'other';
+    desktopIconsHTML += `
     <div class="desktop-icon" data-file="${file.path}" ondblclick="openFile('${file.path}')">
       ${getFileIconSVG(type)}
       <span>${file.name}</span>
     </div>`;
 });
 
-// Gera a estrutura de pastas como JSON para o frontend
 const folderStructureJSON = JSON.stringify(structure).replace(/</g, '\\u003c');
 
 let startMenuItemsHTML = '';
 rootFolders.forEach(folder => {
-  startMenuItemsHTML += `
+    startMenuItemsHTML += `
       <div class="start-menu-item" onclick="openFolder('${folder.path}'); toggleStart();">
         <svg viewBox="0 0 24 24" fill="#f5c842"><path d="M3 5h6l2 2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
         ${folder.name}
@@ -253,11 +211,6 @@ const html = `<!DOCTYPE html>
       border-color: rgba(255,255,255,0.5);
     }
 
-    .desktop-icon.selected {
-      background: rgba(255,255,255,0.35);
-      border-color: #3168d5;
-    }
-
     .desktop-icon svg {
       width: 48px;
       height: 48px;
@@ -293,14 +246,8 @@ const html = `<!DOCTYPE html>
       gap: 6px;
     }
 
-    #desktop-footer .credit:hover {
-      color: #67e8f9;
-    }
-
-    #desktop-footer .credit svg {
-      width: 14px;
-      height: 14px;
-    }
+    #desktop-footer .credit:hover { color: #67e8f9; }
+    #desktop-footer .credit svg { width: 14px; height: 14px; }
 
     #taskbar {
       position: fixed;
@@ -334,14 +281,8 @@ const html = `<!DOCTYPE html>
       margin-right: 4px;
     }
 
-    #startBtn:hover {
-      background: linear-gradient(to bottom, #7dbd4b, #5c9c3a);
-    }
-
-    #startBtn img {
-      width: 20px;
-      height: 20px;
-    }
+    #startBtn:hover { background: linear-gradient(to bottom, #7dbd4b, #5c9c3a); }
+    #startBtn img { width: 20px; height: 20px; }
 
     #taskbar-windows {
       display: flex;
@@ -400,9 +341,7 @@ const html = `<!DOCTYPE html>
       display: none;
     }
 
-    #startMenu.show {
-      display: block;
-    }
+    #startMenu.show { display: block; }
 
     .start-menu-header {
       background: linear-gradient(to bottom, #2156c4, #1a4aa8);
@@ -413,21 +352,9 @@ const html = `<!DOCTYPE html>
       gap: 10px;
     }
 
-    .start-menu-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-    }
-
-    .start-menu-header span {
-      color: white;
-      font-weight: bold;
-      font-size: 15px;
-    }
-
-    .start-menu-items {
-      padding: 4px 0;
-    }
+    .start-menu-header img { width: 40px; height: 40px; border-radius: 8px; }
+    .start-menu-header span { color: white; font-weight: bold; font-size: 15px; }
+    .start-menu-items { padding: 4px 0; }
 
     .start-menu-item {
       display: flex;
@@ -439,15 +366,8 @@ const html = `<!DOCTYPE html>
       color: #1a3a6a;
     }
 
-    .start-menu-item:hover {
-      background: #3168d5;
-      color: white;
-    }
-
-    .start-menu-item svg {
-      width: 24px;
-      height: 24px;
-    }
+    .start-menu-item:hover { background: #3168d5; color: white; }
+    .start-menu-item svg { width: 24px; height: 24px; }
 
     .window {
       position: fixed;
@@ -464,9 +384,7 @@ const html = `<!DOCTYPE html>
       resize: both;
     }
 
-    .window.active {
-      display: flex;
-    }
+    .window.active { display: flex; }
 
     .window-header {
       display: flex;
@@ -478,22 +396,9 @@ const html = `<!DOCTYPE html>
       gap: 6px;
     }
 
-    .win-icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    .win-title {
-      flex: 1;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .win-buttons {
-      display: flex;
-      gap: 3px;
-    }
+    .win-icon { width: 20px; height: 20px; }
+    .win-title { flex: 1; color: white; font-size: 12px; font-weight: bold; }
+    .win-buttons { display: flex; gap: 3px; }
 
     .win-btn {
       width: 22px;
@@ -528,7 +433,7 @@ const html = `<!DOCTYPE html>
       align-content: flex-start;
     }
 
-    .file-icon {
+    .file-icon, .folder-icon {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -539,53 +444,10 @@ const html = `<!DOCTYPE html>
       text-align: center;
     }
 
-    .file-icon:hover {
-      background: #e8f0fc;
-    }
-
-    .file-icon.selected {
-      background: #3168d5;
-      color: white;
-    }
-
-    .file-icon svg {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 4px;
-    }
-
-    .file-icon span {
-      font-size: 10px;
-      word-break: break-word;
-      line-height: 1.2;
-    }
-
-    .folder-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 70px;
-      padding: 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .folder-icon:hover {
-      background: #e8f0fc;
-    }
-
-    .folder-icon svg {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 4px;
-    }
-
-    .folder-icon span {
-      font-size: 10px;
-      word-break: break-word;
-      line-height: 1.2;
-    }
+    .file-icon:hover, .folder-icon:hover { background: #e8f0fc; }
+    .file-icon.selected, .folder-icon.selected { background: #3168d5; color: white; }
+    .file-icon svg, .folder-icon svg { width: 32px; height: 32px; margin-bottom: 4px; }
+    .file-icon span, .folder-icon span { font-size: 10px; word-break: break-word; line-height: 1.2; }
 
     .image-viewer .window-content {
       background: #1a1a2e;
@@ -596,13 +458,7 @@ const html = `<!DOCTYPE html>
       overflow: auto;
     }
 
-    .image-viewer img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .image-viewer canvas {
+    .image-viewer img, .image-viewer canvas {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
@@ -614,10 +470,7 @@ const html = `<!DOCTYPE html>
       border: none;
     }
 
-    .image-viewer .loading {
-      color: white;
-      font-size: 14px;
-    }
+    .image-viewer .loading { color: white; font-size: 14px; }
 
     .image-viewer .viewer-info {
       position: absolute;
@@ -655,6 +508,41 @@ const html = `<!DOCTYPE html>
       background: rgba(49, 104, 213, 1);
     }
 
+    /* Text viewer */
+    .text-viewer .window-content {
+      background: #1e1e2e;
+      padding: 0;
+    }
+
+    .text-viewer pre {
+      margin: 0;
+      padding: 16px;
+      color: #cdd6f4;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #1e1e2e;
+      min-height: 100%;
+    }
+
+    .text-viewer .viewer-info {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      color: rgba(205, 214, 244, 0.7);
+      font-size: 11px;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .text-viewer .window-content {
+      position: relative;
+    }
+
     #contextMenu {
       position: fixed;
       background: #f0f4fc;
@@ -675,16 +563,8 @@ const html = `<!DOCTYPE html>
       gap: 8px;
     }
 
-    #contextMenu .menu-item:hover {
-      background: #3168d5;
-      color: white;
-    }
-
-    #contextMenu .separator {
-      height: 1px;
-      background: #ccc;
-      margin: 2px 6px;
-    }
+    #contextMenu .menu-item:hover { background: #3168d5; color: white; }
+    #contextMenu .separator { height: 1px; background: #ccc; margin: 2px 6px; }
 
     .window-footer {
       padding: 6px 10px;
@@ -706,36 +586,18 @@ const html = `<!DOCTYPE html>
       flex-wrap: wrap;
     }
 
-    .window-breadcrumb span {
-      cursor: pointer;
-    }
-
-    .window-breadcrumb span:hover {
-      text-decoration: underline;
-    }
-
-    .window-breadcrumb .separator {
-      color: #999;
-    }
+    .window-breadcrumb span { cursor: pointer; }
+    .window-breadcrumb span:hover { text-decoration: underline; }
+    .window-breadcrumb .separator { color: #999; }
 
     .info-content {
       padding: 20px;
       text-align: center;
     }
 
-    .info-content .big-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .info-content h3 {
-      margin-bottom: 12px;
-    }
-
-    .info-content p {
-      color: #666;
-      margin: 4px 0;
-    }
+    .info-content .big-icon { font-size: 48px; margin-bottom: 16px; }
+    .info-content h3 { margin-bottom: 12px; }
+    .info-content p { color: #666; margin: 4px 0; }
 
     .info-content button, .info-content a {
       margin-top: 12px;
@@ -749,18 +611,9 @@ const html = `<!DOCTYPE html>
       display: inline-block;
     }
 
-    .info-content button:hover, .info-content a:hover {
-      background: #2156c4;
-    }
-
-    .info-content .download-btn {
-      background: #3c8c3c;
-      margin-left: 8px;
-    }
-
-    .info-content .download-btn:hover {
-      background: #2d6e2d;
-    }
+    .info-content button:hover, .info-content a:hover { background: #2156c4; }
+    .info-content .download-btn { background: #3c8c3c; margin-left: 8px; }
+    .info-content .download-btn:hover { background: #2d6e2d; }
   </style>
 </head>
 <body>
@@ -824,17 +677,29 @@ const html = `<!DOCTYPE html>
     var activeWindow = null;
     var dragData = null;
 
+    function getFileType(ext) {
+      if (!ext) return 'other';
+      ext = ext.toLowerCase();
+      if (ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i)) return 'image';
+      if (ext.match(/\.(json|geojson|csv)$/i)) return 'data';
+      if (ext.match(/\.(txt|md|xml|svg|js|css|html|htm|yml|yaml|ini|cfg|log|sh|bat|py)$/i)) return 'text';
+      return 'other';
+    }
+
     function getFileIconSVG(type) {
       if (type === 'image') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="4" y="6" width="40" height="36" rx="4" fill="#e0e7ff" stroke="#8b9cf7" stroke-width="2"/><circle cx="17" cy="18" r="4" fill="#8b9cf7"/><path d="M4 32l10-10 8 8 6-6 16 16" fill="#c7d2fe" stroke="#8b9cf7" stroke-width="2"/></svg>';
-      } else if (type === 'vector') {
+      } else if (type === 'data' || type === 'vector') {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="6" y="4" width="36" height="40" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><line x1="12" y1="14" x2="36" y2="14" stroke="#d97706" stroke-width="2"/><line x1="12" y1="22" x2="30" y2="22" stroke="#d97706" stroke-width="2"/><line x1="12" y1="30" x2="33" y2="30" stroke="#d97706" stroke-width="2"/><line x1="12" y1="38" x2="24" y2="38" stroke="#d97706" stroke-width="2"/></svg>';
+      } else if (type === 'text') {
+        return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="16" x2="34" y2="16" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="24" x2="30" y2="24" stroke="#22c55e" stroke-width="2"/><line x1="14" y1="32" x2="26" y2="32" stroke="#22c55e" stroke-width="2"/></svg>';
       } else {
         return '<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="4" width="32" height="40" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#94a3b8" stroke-width="2"/><line x1="16" y1="24" x2="28" y2="24" stroke="#94a3b8" stroke-width="2"/></svg>';
       }
     }
 
     function formatSize(bytes) {
+      if (!bytes) return '0 B';
       if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
       if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
       if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
@@ -871,13 +736,10 @@ const html = `<!DOCTYPE html>
       document.getElementById('contextMenu').style.display = 'none';
     });
 
-    function refreshDesktop() {
-      location.reload();
-    }
+    function refreshDesktop() { location.reload(); }
 
     function findInStructure(path, structure) {
       if (!structure) return null;
-      
       var parts = path.split('/');
       var current = { children: structure };
       
@@ -900,10 +762,12 @@ const html = `<!DOCTYPE html>
       options = options || {};
       var id = 'win_' + Date.now();
       var isImageViewer = options.isImageViewer || false;
+      var isTextViewer = options.isTextViewer || false;
       
       var windowEl = document.createElement('div');
       windowEl.className = 'window active';
       if (isImageViewer) windowEl.classList.add('image-viewer');
+      if (isTextViewer) windowEl.classList.add('text-viewer');
       windowEl.id = id;
       windowEl.style.left = (100 + Math.random() * 100) + 'px';
       windowEl.style.top = (60 + Math.random() * 60) + 'px';
@@ -938,31 +802,25 @@ const html = `<!DOCTYPE html>
     function focusWindow(id) {
       var win = document.getElementById(id);
       if (!win) return;
-      
       win.style.zIndex = ++windowZIndex;
-      
       var allTb = document.querySelectorAll('.taskbar-window');
       allTb.forEach(function(tb) { tb.classList.remove('active'); });
       var tb = document.getElementById('tb_' + id);
       if (tb) tb.classList.add('active');
-      
       activeWindow = id;
     }
 
     function minimizeWindow(id) {
       var win = document.getElementById(id);
       if (win) win.classList.remove('active');
-      
       var tb = document.getElementById('tb_' + id);
       if (tb) tb.classList.remove('active');
-      
       if (activeWindow === id) activeWindow = null;
     }
 
     function toggleWindow(id) {
       var win = document.getElementById(id);
       if (!win) return;
-      
       if (win.classList.contains('active') && activeWindow === id) {
         minimizeWindow(id);
       } else {
@@ -974,7 +832,6 @@ const html = `<!DOCTYPE html>
     function maximizeWindow(id) {
       var win = document.getElementById(id);
       if (!win) return;
-      
       if (win.style.width === '100%') {
         win.style.width = '500px';
         win.style.height = '400px';
@@ -991,50 +848,33 @@ const html = `<!DOCTYPE html>
     function closeWindow(id) {
       var win = document.getElementById(id);
       if (win) win.remove();
-      
       var tb = document.getElementById('tb_' + id);
       if (tb) tb.remove();
-      
       if (activeWindow === id) activeWindow = null;
     }
 
     function startDrag(e, id) {
       var win = document.getElementById(id);
       if (!win) return;
-      
-      dragData = {
-        id: id,
-        startX: e.clientX,
-        startY: e.clientY,
-        startLeft: win.offsetLeft,
-        startTop: win.offsetTop
-      };
-      
+      dragData = { id: id, startX: e.clientX, startY: e.clientY, startLeft: win.offsetLeft, startTop: win.offsetTop };
       focusWindow(id);
     }
 
     document.addEventListener('mousemove', function(e) {
       if (!dragData) return;
-      
       var win = document.getElementById(dragData.id);
       if (!win) return;
-      
       var dx = e.clientX - dragData.startX;
       var dy = e.clientY - dragData.startY;
-      
       win.style.left = (dragData.startLeft + dx) + 'px';
       win.style.top = (dragData.startTop + dy) + 'px';
     });
 
-    document.addEventListener('mouseup', function() {
-      dragData = null;
-    });
+    document.addEventListener('mouseup', function() { dragData = null; });
 
     document.addEventListener('mousedown', function(e) {
       var win = e.target.closest('.window');
-      if (win && win.id) {
-        focusWindow(win.id);
-      }
+      if (win && win.id) focusWindow(win.id);
     });
 
     function openFolder(folderPath) {
@@ -1059,7 +899,6 @@ const html = `<!DOCTYPE html>
         }
       }
 
-      // Breadcrumb
       var parts = folderPath.split('/');
       var breadcrumbHTML = '<div class="window-breadcrumb">';
       for (var b = 0; b < parts.length; b++) {
@@ -1071,25 +910,19 @@ const html = `<!DOCTYPE html>
 
       var iconsHTML = '';
 
-      // Pastas primeiro
       for (var s = 0; s < subfolders.length; s++) {
         var sub = subfolders[s];
         iconsHTML += '<div class="folder-icon" ondblclick="openFolder(\\'' + sub.path + '\\')">' +
           '<svg viewBox="0 0 48 48" fill="none"><path d="M6 8h14l4 4h18a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#f5c842" stroke="#d4a820" stroke-width="2"/></svg>' +
-          '<span>' + sub.name + '</span>' +
-        '</div>';
+          '<span>' + sub.name + '</span></div>';
       }
 
-      // Depois arquivos
       for (var f = 0; f < files.length; f++) {
         var file = files[f];
         var ext = file.ext ? file.ext.toLowerCase() : '';
-        var type = ext.match(/\.(tiff?|geotiff|png|jpg|jpeg|gif|bmp|webp|pdf)$/i) ? 'image' :
-                   ext.match(/\.(json|geojson)$/i) ? 'vector' : 'other';
+        var type = getFileType(ext);
         iconsHTML += '<div class="file-icon" ondblclick="openFile(\\'' + file.path + '\\')" title="' + file.name + ' - ' + formatSize(file.size || 0) + '">' +
-          getFileIconSVG(type) +
-          '<span>' + file.name + '</span>' +
-        '</div>';
+          getFileIconSVG(type) + '<span>' + file.name + '</span></div>';
       }
 
       var content = breadcrumbHTML + 
@@ -1102,79 +935,49 @@ const html = `<!DOCTYPE html>
     function renderTIFF(url, containerId) {
       var container = document.getElementById(containerId);
       if (!container) return;
-      
       container.innerHTML = '<div class="loading">Carregando TIFF...</div>';
       
       fetch(url)
-        .then(function(response) {
-          if (!response.ok) throw new Error('Erro ao carregar');
-          return response.arrayBuffer();
-        })
-        .then(function(arrayBuffer) {
-          return GeoTIFF.fromArrayBuffer(arrayBuffer);
-        })
-        .then(function(tiff) {
-          return tiff.getImage();
-        })
+        .then(function(r) { return r.arrayBuffer(); })
+        .then(function(buf) { return GeoTIFF.fromArrayBuffer(buf); })
+        .then(function(tiff) { return tiff.getImage(); })
         .then(function(image) {
-          var width = image.getWidth();
-          var height = image.getHeight();
-          
-          var maxDim = 2000;
-          var scale = 1;
-          if (width > maxDim || height > maxDim) {
-            scale = maxDim / Math.max(width, height);
-          }
+          var w = image.getWidth(), h = image.getHeight();
+          var maxDim = 2000, scale = 1;
+          if (w > maxDim || h > maxDim) scale = maxDim / Math.max(w, h);
           
           var canvas = document.createElement('canvas');
-          canvas.width = Math.floor(width * scale);
-          canvas.height = Math.floor(height * scale);
-          canvas.style.maxWidth = '100%';
-          canvas.style.maxHeight = '100%';
-          canvas.style.objectFit = 'contain';
-          
+          canvas.width = Math.floor(w * scale);
+          canvas.height = Math.floor(h * scale);
+          canvas.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
           container.innerHTML = '';
           container.appendChild(canvas);
-          
-          return image.readRasters({ window: [0, 0, width, height] });
+          return image.readRasters({ window: [0, 0, w, h] });
         })
         .then(function(rasters) {
           var canvas = container.querySelector('canvas');
           if (!canvas) return;
-          
           var ctx = canvas.getContext('2d');
-          var imageData = ctx.createImageData(canvas.width, canvas.height);
-          
-          var r = rasters[0];
-          var g = rasters[1] || rasters[0];
-          var b = rasters[2] || rasters[0];
-          var hasAlpha = rasters.length >= 4;
-          var alpha = hasAlpha ? rasters[3] : null;
-          
-          var srcWidth = rasters[0].width;
-          var srcHeight = rasters[0].length / rasters[0].width;
-          var scaleX = srcWidth / canvas.width;
-          var scaleY = srcHeight / canvas.height;
+          var imgData = ctx.createImageData(canvas.width, canvas.height);
+          var r = rasters[0], g = rasters[1] || r, b = rasters[2] || r;
+          var a = rasters.length >= 4 ? rasters[3] : null;
+          var sw = rasters[0].width, sh = rasters[0].length / sw;
+          var sx = sw / canvas.width, sy = sh / canvas.height;
           
           for (var y = 0; y < canvas.height; y++) {
             for (var x = 0; x < canvas.width; x++) {
-              var srcX = Math.floor(x * scaleX);
-              var srcY = Math.floor(y * scaleY);
-              var srcIdx = srcY * srcWidth + srcX;
-              var dstIdx = (y * canvas.width + x) * 4;
-              
-              imageData.data[dstIdx] = r[srcIdx] !== undefined ? r[srcIdx] : 0;
-              imageData.data[dstIdx + 1] = g[srcIdx] !== undefined ? g[srcIdx] : 0;
-              imageData.data[dstIdx + 2] = b[srcIdx] !== undefined ? b[srcIdx] : 0;
-              imageData.data[dstIdx + 3] = hasAlpha && alpha[srcIdx] !== undefined ? alpha[srcIdx] : 255;
+              var si = Math.floor(y * sy) * sw + Math.floor(x * sx);
+              var di = (y * canvas.width + x) * 4;
+              imgData.data[di] = r[si] !== undefined ? r[si] : 0;
+              imgData.data[di+1] = g[si] !== undefined ? g[si] : 0;
+              imgData.data[di+2] = b[si] !== undefined ? b[si] : 0;
+              imgData.data[di+3] = a && a[si] !== undefined ? a[si] : 255;
             }
           }
-          
-          ctx.putImageData(imageData, 0, 0);
+          ctx.putImageData(imgData, 0, 0);
         })
         .catch(function(err) {
-          console.error('Erro ao renderizar TIFF:', err);
-          container.innerHTML = '<div class="loading">Erro ao renderizar TIFF. <a href="' + url + '" download style="color:#67e8f9;">Clique para baixar</a></div>';
+          container.innerHTML = '<div class="loading">Erro ao renderizar. <a href="' + url + '" download style="color:#67e8f9;">Baixar</a></div>';
         });
     }
 
@@ -1189,22 +992,38 @@ const html = `<!DOCTYPE html>
           '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>';
         createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
       } else if (ext === '.tiff' || ext === '.tif' || ext === '.geotiff') {
-        var tiffContainerId = 'tiff_container_' + Date.now();
-        var content = '<div id="' + tiffContainerId + '" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"></div>' +
+        var cid = 'tiff_' + Date.now();
+        var content = '<div id="' + cid + '" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"></div>' +
           '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
           '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
-        
-        var winId = createWindow(file.name, content, { width: '750px', height: '600px', isImageViewer: true });
-        
-        setTimeout(function() {
-          renderTIFF('/' + file.path, tiffContainerId);
-        }, 100);
+        var wid = createWindow(file.name, content, { width: '750px', height: '600px', isImageViewer: true });
+        setTimeout(function() { renderTIFF('/' + file.path, cid); }, 100);
       } else if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif' || ext === '.bmp' || ext === '.webp') {
-        var content = '<img src="/' + file.path + '" alt="' + file.name + '" onerror="this.style.display=\\'none\\';this.parentElement.querySelector(\\'.loading\\').style.display=\\'block\\';">' +
-          '<div class="loading" style="display:none;">Erro ao carregar imagem</div>' +
+        var content = '<img src="/' + file.path + '" alt="' + file.name + '">' +
           '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + '</div>' +
           '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
         createWindow(file.name, content, { width: '700px', height: '550px', isImageViewer: true });
+      } else if (getFileType(ext) === 'text' || getFileType(ext) === 'data') {
+        // Text viewer
+        var content = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cdd6f4;"><div class="loading">Carregando...</div></div>';
+        var winId = createWindow(file.name, content, { width: '650px', height: '500px', isTextViewer: true });
+        
+        fetch('/' + file.path)
+          .then(function(r) { return r.text(); })
+          .then(function(text) {
+            var win = document.getElementById(winId);
+            if (!win) return;
+            var wc = win.querySelector('.window-content');
+            var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            wc.innerHTML = '<pre>' + escaped + '</pre>' +
+              '<div class="viewer-info">' + file.name + ' - ' + formatSize(file.size || 0) + ' | ' + text.split('\\n').length + ' linhas</div>' +
+              '<div class="viewer-actions"><a href="/' + file.path + '" download>Download</a></div>';
+          })
+          .catch(function() {
+            var win = document.getElementById(winId);
+            if (!win) return;
+            win.querySelector('.window-content').innerHTML = '<div class="loading">Erro ao carregar arquivo. <a href="/' + file.path + '" download style="color:#67e8f9;">Baixar</a></div>';
+          });
       } else {
         var content = '<div class="info-content">' +
           '<div class="big-icon">\ud83d\udcc4</div>' +
@@ -1232,6 +1051,3 @@ fs.writeFileSync('index.html', html);
 console.log('✅ index.html gerado com sucesso!');
 console.log('📦 ' + assets.length + ' assets encontrados');
 console.log('📁 ' + folders.length + ' pastas encontradas');
-if (fs.existsSync('./background.gif')) {
-  console.log('🎞️ Background GIF detectado!');
-}
